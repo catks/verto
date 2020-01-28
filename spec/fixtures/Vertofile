@@ -1,0 +1,8 @@
+config {
+  pre_release.initial_number = 0
+}
+
+context(true) do
+  puts current_branch
+  puts "opa: #{Verto.config.pre_release.initial_number}"
+end
