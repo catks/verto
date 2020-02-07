@@ -96,11 +96,9 @@ module Verto
     def with_pre_release(name)
       new_version = self.dup
 
-      if pre_release?
-        new_version.pre_release.name = name.dup
-      else
-        new_version.pre_release = PreRelease.with(name: name)
-      end
+      return new_version if new_version.pre_release? && new_version.pre_release.name == name
+
+      new_version.pre_release = PreRelease.with(name: name)
 
       new_version
     end

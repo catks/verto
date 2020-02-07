@@ -1,5 +1,6 @@
 require "bundler/setup"
 require "verto"
+require "byebug"
 require_relative "helpers/test_repo"
 require_relative "helpers/test_command"
 

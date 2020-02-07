@@ -9,6 +9,15 @@ RSpec.describe Verto::MainCommand do
   let(:repo) { TestRepo.new }
   let(:stderr) { StringIO.new }
 
+  around(:each) do |ex|
+    begin
+      ex.run
+    rescue SystemExit => e
+      puts e
+      raise "Command exits in error #{e.message}"
+    end
+  end
+
   after do
     repo.clear!
   end
@@ -47,10 +56,13 @@ RSpec.describe Verto::MainCommand do
       context 'with a lastest tag' do
         before do
           repo.reload!
+          repo.run("git tag #{older_tag}") if older_tag
+          repo.commit!('Second')
           repo.run("git tag #{last_tag}")
-          repo.commit!('Another')
+          repo.commit!('Third')
         end
 
+        let(:older_tag) { nil }
 
         context 'with --patch option' do
           let(:options) { ['--patch'] }
@@ -71,6 +83,19 @@ RSpec.describe Verto::MainCommand do
 
               result = repo.run('git log --decorate HEAD')
               expect(result).to include('tag: 1.9.20-rc.1')
+            end
+
+            context 'but have a filter for release tags' do
+              let(:older_tag) { '0.0.1' }
+              let(:last_tag) { '0.0.2-rc.1' }
+              let(:options) { ['--patch', '--filter=release_only'] }
+
+              it 'create a release tag with the patch number increased' do
+                up
+
+                result = repo.run('git log --decorate HEAD')
+                expect(result).to include('tag: 0.0.2)')
+              end
             end
           end
         end

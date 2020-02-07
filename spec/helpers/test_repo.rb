@@ -30,6 +30,10 @@ class TestRepo
     run "git commit -m #{message} --allow-empty"
   end
 
+  def checkout(branch)
+    run "git checkout -b #{branch}"
+  end
+
   def run(command)
     `cd #{@path} && #{command}`
   end

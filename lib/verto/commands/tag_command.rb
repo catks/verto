@@ -6,9 +6,10 @@ module Verto
     option :minor, type: :boolean, default: false
     option :patch, type: :boolean, default: false
     option :pre_release, type: :string
+    option :filter, type: :string
 
     def up
-      latest_tag = tag_repository.latest
+      latest_tag = tag_repository.latest(filter: load_filter)
 
       validate_latest_tag!(latest_tag)
 
@@ -54,6 +55,10 @@ module Verto
         or disable tag validation in Vertofile with config.version.validations.new_version_must_be_bigger = false
         TEXT
       ) if new_version < latest_version
+    end
+
+    def load_filter
+      TagFilter.for(options[:filter]) || Regexp.new(options[:filter].to_s)
     end
   end
 end

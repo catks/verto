@@ -2,8 +2,8 @@ module Verto
   class TagRepository
     include Verto.import[executor: 'system_command_executor']
 
-    def latest
-      all.last
+    def latest(filter: nil)
+      all(filter: filter).last
     end
 
     def create!(tag)
@@ -11,10 +11,10 @@ module Verto
       executor.run! "git tag #{tag}"
     end
 
-    def all
-      results = executor.run "git tag | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+(-rc\.[0-9]+)*' | sed 's/\([0-9]\.[0-9]\.[0-9]$\)/\1-zzzzzzzzzz/' | sort -V |  sed 's/-zzzzzzzzzz//' | cat"
+    def all(filter: nil)
+      results = executor.run("git tag | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+(-.+\.[0-9]+)*' | sed 's/\([0-9]\.[0-9]\.[0-9]$\)/\1-zzzzzzzzzz/' | sort -V |  sed 's/-zzzzzzzzzz//' | cat").output.split
 
-      results.split
+      filter ?  results.select { |tag| tag.match?(filter) } : results
     end
   end
 end

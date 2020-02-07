@@ -40,6 +40,7 @@ end
 
 require "verto/utils/semantic_version.rb"
 require "verto/utils/system_command_executor"
+require "verto/utils/tag_filter"
 require "verto/commands/base_command"
 require "verto/commands/tag_command"
 require "verto/commands/main_command"
