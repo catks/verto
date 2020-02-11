@@ -16,6 +16,9 @@ module Verto
     setting :path, './'
   end
 
+  setting :hooks, []
+  setting :command_options, Class.new(Hash) { alias_method :add, :merge! }.new
+
   def self.root_path
     Pathname.new File.expand_path(File.dirname(__FILE__) + '/..')
   end
@@ -41,8 +44,9 @@ end
 require "verto/utils/semantic_version.rb"
 require "verto/utils/system_command_executor"
 require "verto/utils/tag_filter"
+require "verto/dsl"
+require "verto/dsl/hook"
 require "verto/commands/base_command"
 require "verto/commands/tag_command"
 require "verto/commands/main_command"
 require "verto/repositories/tag_repository"
-require "verto/dsl"

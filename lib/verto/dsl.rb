@@ -3,11 +3,11 @@ module Verto
     def self.load_file(filepath)
       vertofile_content = IO.read(filepath)
 
-      parser.new.instance_eval(vertofile_content)
+      parser.instance_eval(vertofile_content)
     end
 
     def self.parser
-      @parser ||= Class.new { include Verto::DSL }
+      @parser ||= Class.new { include Verto::DSL }.new
     end
 
     def config(&block)
@@ -34,10 +34,26 @@ module Verto
       command_executor.run command
     end
 
+    def command_options
+      Verto.config.command_options
+    end
+
+    def before_command(command_name, &block)
+      Verto.config.hooks << Hook.new(moment: :before, on: Hook::Contexts::Command.new(command_name), &block)
+    end
+
+    def after_command(command_name, &block)
+      Verto.config.hooks << Hook.new(moment: :after, on: Hook::Contexts::Command.new(command_name), &block)
+    end
+
     private
 
     def command_executor
       @command_executor ||= SystemCommandExecutor.new
+    end
+
+    def current_moment
+      @current_moment || :before
     end
   end
 end

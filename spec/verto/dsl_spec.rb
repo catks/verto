@@ -25,6 +25,15 @@ RSpec.describe Verto::DSL do
 
           sh('echo "On qa Branch" > branch')
           git('status')
+
+          before_command('tag_up') {
+            command_options.add(pre_release: 'rc')
+            sh('echo "Before Hook" > before_hook')
+          }
+
+          after_command('tag_up') {
+           sh('echo "After Hook" > after_hook')
+          }
         }
       VERTO
     end
@@ -34,10 +43,7 @@ RSpec.describe Verto::DSL do
     let(:current_branch) { 'master' }
     let(:stderr) { StringIO.new }
     let(:stdout) { StringIO.new }
-    let(:sh_output_file) { Verto.root_path.join(Verto.config.project.path, 'branch') }
-    let(:sh_output) do
-      sh_output_file.readlines.first.chomp
-    end
+    let(:fake_command) { Class.new(Verto::BaseCommand) }
 
     before do
       allow(IO).to receive(:read).with(vertofile_path).and_return(vertofile)
@@ -58,6 +64,18 @@ RSpec.describe Verto::DSL do
       repo.clear!
     end
 
+    def run(command_name)
+      fake_command.new.instance_eval do
+        result = nil
+
+        call_before_hooks(command_name)
+        result = yield if block_given?
+        call_after_hooks(command_name)
+
+        result
+      end
+    end
+
     context 'when a branch doesnt have a specific context' do
       let(:current_branch) { 'without_context' }
 
@@ -70,7 +88,7 @@ RSpec.describe Verto::DSL do
       it 'doesnt execute context commands' do
         load_file
 
-        expect(sh_output_file).to_not exist
+        expect(file('branch')).to_not exist
       end
     end
 
@@ -86,7 +104,7 @@ RSpec.describe Verto::DSL do
       it 'execute the shell command in the context' do
         load_file
 
-        expect(sh_output).to eq('On master Branch')
+        expect(file_content('branch')).to eq('On master Branch')
       end
     end
 
@@ -102,7 +120,33 @@ RSpec.describe Verto::DSL do
       it 'execute the shell command in the context' do
         load_file
 
-        expect(sh_output).to eq('On qa Branch')
+        expect(file_content('branch')).to eq('On qa Branch')
+      end
+
+      it 'adds preconfigured options for tag up' do
+        load_file
+
+        on_command_options = run('tag_up') { Verto.config.command_options }
+
+        expect(on_command_options).to include(pre_release: 'rc')
+      end
+
+      it 'run the before hook before the command' do
+        load_file
+
+        output = run('tag_up') { file_content('before_hook') }
+
+        expect(output).to eq('Before Hook')
+      end
+
+      it 'run the after hook after the command' do
+        load_file
+
+        on_command_output = run('tag_up') { file('after_hook').exist? }
+
+        expect(on_command_output).to be false
+
+        expect(file_content('after_hook')).to eq('After Hook')
       end
     end
   end

@@ -9,6 +9,8 @@ module Verto
     option :filter, type: :string
 
     def up
+      call_before_hooks('tag_up')
+
       latest_tag = tag_repository.latest(filter: load_filter)
 
       validate_latest_tag!(latest_tag)
@@ -27,6 +29,8 @@ module Verto
 
       validate_new_version!(new_version, latest_version)
       tag_repository.create!(new_version.to_s)
+
+      call_after_hooks('tag_up')
     end
 
     private
