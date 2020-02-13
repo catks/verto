@@ -14,18 +14,18 @@ module Verto
       super.merge Verto.config.command_options
     end
 
-    def call_before_hooks(current_context)
-      call_hooks(:before, current_context)
+    def call_before_hooks(current_context, with_attributes: {})
+      call_hooks(:before, current_context, with_attributes)
     end
 
-    def call_after_hooks(current_context)
-      call_hooks(:after, current_context)
+    def call_after_hooks(current_context, with_attributes: {})
+      call_hooks(:after, current_context, with_attributes)
     end
 
-    def call_hooks(moment, current_context)
+    def call_hooks(moment, current_context, with_attributes = {})
       Verto.config.hooks
         .select { |hook| hook.moment == moment }
-        .each { |hook| hook.call(current_context) }
+        .each { |hook| hook.call(current_context, with_attributes: with_attributes) }
     end
   end
 end

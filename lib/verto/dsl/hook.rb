@@ -21,7 +21,7 @@ module Verto
 
       attr_accessor :moment
 
-      def initialize(parser: DSL.parser, moment: :before, on: Any.new, &block)
+      def initialize(parser: DSL.parser, moment: :before, on: Contexts::Any.new, &block)
         raise InvalidWhenError.new("Must be some of these: #{MOMENT}") unless MOMENT.include?(moment)
 
         @moment = moment
@@ -30,7 +30,13 @@ module Verto
         @block = block
       end
 
-      def call(current_context = nil)
+      def call(current_context = nil, with_attributes: {})
+        # TODO: Move to Parser class
+        with_attributes.each do |key, value|
+          @parser.instance_variable_set("@#{key}", value)
+          @parser.define_singleton_method(key) { @new_version }
+        end
+
         @parser.instance_eval(&@block) if @context.match?(current_context)
       end
     end

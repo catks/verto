@@ -16,7 +16,7 @@ module Verto
     Error = Class.new(StandardError)
 
     def run(command)
-      Open3.popen3(in_path(command)) do |stdin, stdout, stderr, wait_thread|
+      Open3.popen3(command, chdir: path.to_s) do |stdin, stdout, stderr, wait_thread|
         @output = stdout.read
         @error = stderr.read
         @result = wait_thread.value
@@ -29,13 +29,6 @@ module Verto
       run(command)
 
       raise Error, @error unless @error.empty?
-    end
-
-
-    private
-
-    def in_path(command)
-      "cd #{path} && #{command}"
     end
   end
 end

@@ -30,7 +30,7 @@ module Verto
       validate_new_version!(new_version, latest_version)
       tag_repository.create!(new_version.to_s)
 
-      call_after_hooks('tag_up')
+      call_after_hooks('tag_up', with_attributes: { new_version: new_version })
     end
 
     private

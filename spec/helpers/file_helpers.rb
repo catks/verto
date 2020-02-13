@@ -1,6 +1,6 @@
 module FileHelpers
   def file_content(filename)
-    file(filename).readlines.first.chomp
+    file(filename).readlines.join
   end
 
   def file(filename)

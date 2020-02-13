@@ -38,12 +38,24 @@ module Verto
       Verto.config.command_options
     end
 
+    def before(&block)
+      Verto.config.hooks << Hook.new(moment: :before, &block)
+    end
+
+    def after(&block)
+      Verto.config.hooks << Hook.new(moment: :after, &block)
+    end
+
     def before_command(command_name, &block)
       Verto.config.hooks << Hook.new(moment: :before, on: Hook::Contexts::Command.new(command_name), &block)
     end
 
     def after_command(command_name, &block)
       Verto.config.hooks << Hook.new(moment: :after, on: Hook::Contexts::Command.new(command_name), &block)
+    end
+
+    def file(filepath)
+      DSL::File.new(filepath)
     end
 
     private
