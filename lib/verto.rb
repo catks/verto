@@ -2,6 +2,7 @@ require "thor"
 require "dry-container"
 require "dry-configurable"
 require "dry-auto_inject"
+require "pathname"
 
 require "verto/version"
 

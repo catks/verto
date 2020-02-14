@@ -33,6 +33,8 @@ RSpec.describe Verto::MainCommand do
           repo.reload!
          end
 
+         let(:options) { ['--patch'] }
+
          it 'dont create a tag' do
            expect { up }.to raise_error(SystemExit) do |error|
              expect(error.status).to eq(1)
@@ -53,6 +55,7 @@ RSpec.describe Verto::MainCommand do
          end
       end
 
+
       context 'with a lastest tag' do
         before do
           repo.reload!
@@ -63,6 +66,36 @@ RSpec.describe Verto::MainCommand do
         end
 
         let(:older_tag) { nil }
+
+        context 'without a version option' do
+          let(:last_tag) { '2.0.0' }
+
+          it 'dont create a tag' do
+            expect { up }.to raise_error(SystemExit) do |error|
+              expect(error.status).to eq(1)
+              result = repo.run('git log --decorate -n 1 HEAD')
+              expect(result).to_not include('tag:')
+            end
+          end
+
+          it 'exits on error' do
+            expect { up }.to raise_error(SystemExit) do |error|
+              expect(stderr.string).to eq(
+                <<~TEXT
+                You must specify the version number to be increased, use the some of the options(eg: --major, --minor, --patch, --pre_release=rc)
+                or configure a Vertofile to specify a default option for current context, eg:
+
+                context('qa') {
+                  before_command('tag_up') {
+                    command_options.add(pre_release: 'rc')
+                  }
+                }
+                TEXT
+              )
+            end
+          end
+        end
+
 
         context 'with --patch option' do
           let(:options) { ['--patch'] }

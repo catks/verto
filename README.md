@@ -1,38 +1,81 @@
 # Verto
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/verto`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Verto is a CLI to generate git tags (following the [Semantic Versioning](https://semver.org/) system)
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Verto is distributed as a ruby gem, to install run:
 
-```ruby
-gem 'verto'
 ```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install verto
+$ gem install verto
+```
 
 ## Usage
 
-TODO: Write usage instructions here
+Now you can run verto right out of the box without any configuration:
 
-## Development
+```
+  verto tag up --patch # Creates a new tag increasing the patch number
+  verto tag up --minor # Creates a new tag increasing the minor number
+  verto tag up --major # Creates a new tag increasing the major number
+```
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+### Verto DSL
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+If you need a more specific configuration or want to reflect your development proccess in some way, you can use Verto DSL creating a Vertofile with the configuration.
+
+```ruby
+# Vertofile
+config {
+  pre_release.initial_number = 0
+  project.path = "my/repo/path"
+}
+
+before { sh('echo "Creating Tag"') }
+
+context(branch('master')) {
+  on('before_tag_creation') {
+    versions_changes = "## #{new_version} - #{Time.now.strftime('%d/%m/%Y')}\n"
+    exit unless confirm("Create a new release?\n" \
+      "#{versions_changes}"
+    )
+
+    file('CHANGELOG.md').prepend(versions_changes)
+    git('add CHANGELOG.md')
+    git('commit -m "Updates CHANGELOG"')
+  }
+
+  after_command('tag_up') {
+    git('push --tags')
+    git('push origin master')
+  }
+}
+
+context(branch('qa')) {
+  before_command('tag_up') {
+    command_options.add(pre_release: 'rc')
+  }
+
+  after_command('tag_up') {
+    file('releases.log').append(new_version.to_s)
+  }
+}
+
+```
+
+#### Verto Syntax
+
+...TODO...
+
+## TODO
+
+  1. Complete README.md description
+  2. Add a configuration to enable, disable or specify the number of tags that a single commit can have(eg: only one release and one pre-release)
+  3. Enable the *sh* dsl output to be show as default
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/verto.
+Bug reports and pull requests are welcome on GitHub at https://github.com/catks/verto.
 
 ## License
 

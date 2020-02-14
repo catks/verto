@@ -9,7 +9,9 @@ module Verto
     option :filter, type: :string
 
     def up
-      call_before_hooks('tag_up')
+      call_hooks(%i[before before_tag_up])
+
+      validate_version_option_presence!
 
       latest_tag = tag_repository.latest(filter: load_filter)
 
@@ -28,9 +30,11 @@ module Verto
       end
 
       validate_new_version!(new_version, latest_version)
+      call_hooks(:before_tag_creation, with_attributes: { new_version: new_version, latest_version: latest_version } )
       tag_repository.create!(new_version.to_s)
 
-      call_after_hooks('tag_up', with_attributes: { new_version: new_version })
+      call_hooks(:after_tag_up, with_attributes: { new_version: new_version })
+      call_hooks(:after)
     end
 
     private
@@ -59,6 +63,22 @@ module Verto
         or disable tag validation in Vertofile with config.version.validations.new_version_must_be_bigger = false
         TEXT
       ) if new_version < latest_version
+    end
+
+    def validate_version_option_presence!
+      command_error!(
+        <<~TEXT
+        You must specify the version number to be increased, use the some of the options(eg: --major, --minor, --patch, --pre_release=rc)
+        or configure a Vertofile to specify a default option for current context, eg:
+
+        context('qa') {
+          before_command('tag_up') {
+            command_options.add(pre_release: 'rc')
+          }
+        }
+        TEXT
+      ) unless options[:major] || options[:minor] || options[:patch] || options[:pre_release]
+
     end
 
     def load_filter

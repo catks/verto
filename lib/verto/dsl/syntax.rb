@@ -29,6 +29,10 @@ module Verto
         Verto.config.command_options
       end
 
+      def on(moment, &block)
+        Verto.config.hooks << Hook.new(moment: moment, &block)
+      end
+
       def before(&block)
         Verto.config.hooks << Hook.new(moment: :before, &block)
       end
@@ -38,11 +42,11 @@ module Verto
       end
 
       def before_command(command_name, &block)
-        Verto.config.hooks << Hook.new(moment: :before, on: Hook::Contexts::Command.new(command_name), &block)
+        Verto.config.hooks << Hook.new(moment: "before_#{command_name}", &block)
       end
 
       def after_command(command_name, &block)
-        Verto.config.hooks << Hook.new(moment: :after, on: Hook::Contexts::Command.new(command_name), &block)
+        Verto.config.hooks << Hook.new(moment: "after_#{command_name}", &block)
       end
 
       def file(filepath)
@@ -53,10 +57,18 @@ module Verto
         ENV[environment_name]
       end
 
+      def confirm(text)
+        shell_basic.yes?("#{text} (y/n)")
+      end
+
       private
 
       def command_executor
         @command_executor ||= SystemCommandExecutor.new
+      end
+
+      def shell_basic
+        @shell_basic ||= Thor::Shell::Basic.new
       end
     end
   end
