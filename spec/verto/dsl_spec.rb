@@ -43,7 +43,9 @@ RSpec.describe Verto::DSL do
 
           after_command('tag_up') {
             sh('echo "After Hook" > after_hook')
-            file('releases.log').append(new_version.to_s)
+            context(env('DEBUG') == 'true') {
+              file('releases.log').append(new_version.to_s)
+            }
           }
         }
       VERTO
@@ -171,7 +173,17 @@ RSpec.describe Verto::DSL do
 
         expect(file_content('after_hook').chomp).to eq('After Hook')
 
-        expect(file_content('releases.log')).to eq("My Releases\n1.2.3-rc.1")
+      end
+
+      context 'with env DEBUG' do
+        before { ENV['DEBUG'] = 'true' }
+        it 'run the context in after hook' do
+          load_file
+
+          run('tag_up', after_with_attributes: { new_version: '1.2.3-rc.1' }) { true }
+
+          expect(file_content('releases.log')).to eq("My Releases\n1.2.3-rc.1")
+        end
       end
     end
   end
