@@ -4,6 +4,19 @@ Verto is a CLI to generate git tags (following the [Semantic Versioning](https:/
 
 ## Installation
 
+### Docker Image(Recommended)
+
+You don't need to install verto in your machine, you can run verto via the docker image
+
+To use verto in the same way that will be used as any other cli in your machine, you can set an alias in your `.bashrc`, `.zshrc`, etc:
+
+```
+alias verto='docker run -v $(pwd):/usr/src/project -it catks/verto'
+```
+
+Now you can run any verto command! :)
+
+### Ruby Gem
 Verto is distributed as a ruby gem, to install run:
 
 ```
