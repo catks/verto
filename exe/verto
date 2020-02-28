@@ -4,6 +4,11 @@ require_relative '../lib/verto'
 
 vertofile_path = ENV['VERTOFILE_PATH'] || Pathname.new(Dir.pwd).join('Vertofile').to_s
 
-Verto::DSL.load_file(vertofile_path) if File.exists?(vertofile_path)
+begin
+  Verto::DSL.load_file(vertofile_path) if File.exists?(vertofile_path)
 
-Verto::MainCommand.start(ARGV)
+  Verto::MainCommand.start(ARGV)
+rescue Verto::ExitError
+  Verto.stderr.puts 'Exiting Verto...'
+  exit 1
+end

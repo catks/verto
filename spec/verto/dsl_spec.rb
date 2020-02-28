@@ -49,6 +49,15 @@ RSpec.describe Verto::DSL do
           }
         }
 
+        context(branch(/feature.+/)) {
+          config {
+            output.stdout_to = "verto.log"
+            output.stderr_to = "error.log"
+          }
+
+          error "Can't create tags in feature branch"
+        }
+
         after {
           file('verto.log').append(Time.now.strftime('%d-%m-%Y'))
         }
@@ -60,8 +69,6 @@ RSpec.describe Verto::DSL do
     let(:package_json_path) { project_path.join('package.json') }
     let(:repo) { TestRepo.new }
     let(:current_branch) { 'master' }
-    let(:stderr) { StringIO.new }
-    let(:stdout) { StringIO.new }
     let(:fake_command) { Class.new(Verto::BaseCommand) }
     let(:command_executor) { Verto::SystemCommandExecutor.new(path: project_path) }
 
@@ -206,6 +213,34 @@ RSpec.describe Verto::DSL do
         run_command(after_with_attributes: { new_version: '1.2.3-rc.1' }) { true }
 
         expect(file_content('verto.log')).to eq(Time.now.strftime('%d-%m-%Y'))
+      end
+    end
+
+    context 'when branch is a feature branch' do
+      let(:current_branch) { 'feature/my_branch' }
+
+      it 'sets the stderr' do
+        load_file
+
+        expect(Verto.config.output.stderr_to).to eq('error.log')
+      end
+
+      it 'sets the stdout' do
+        load_file
+
+        expect(Verto.config.output.stdout_to).to eq('verto.log')
+      end
+
+
+      it 'saves the error on error.log file' do
+        stderr = Verto.container.resolve('stderr')
+
+        allow(stderr).to receive(:<<)
+
+        load_file
+
+        # TODO: Improve test, seeing the file content (Currently only write after proccess finish)
+        expect(stderr).to have_received(:<<).with("Can't create tags in feature branch")
       end
     end
   end
