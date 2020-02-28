@@ -1,5 +1,6 @@
 # Verto
-
+[![Build Status](https://travis-ci.org/catks/verto.svg?branch=master)](https://travis-ci.org/catks/verto)
+[![Maintainability](https://api.codeclimate.com/v1/badges/b699d13df33e33bbe2d0/maintainability)](https://codeclimate.com/github/catks/verto/maintainability)\
 Verto is a CLI to generate git tags (following the [Semantic Versioning](https://semver.org/) system)
 
 ## Installation
@@ -20,13 +21,13 @@ You don't need to install verto in your machine, you can run verto via the docke
 To use verto in the same way that you use any other cli, you can set an alias in your `.bashrc`, `.zshrc`, etc:
 
 ```
-alias verto='docker run -v $(pwd):/usr/src/project -it catks/verto'
+alias verto='docker run -v $(pwd):/usr/src/project -it catks/verto:0.2.0'
 ```
 
 If you want to use your ssh keys with verto container (for git push) you can set the alias sharing the ssh key file:
 
 ```
-alias verto='docker run -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -v $HOME/.ssh/id_rsa:/root/.ssh/id_rsa -e SSH_PRIVATE_KEY=/root/.ssh/id_rsa -it catks/verto'
+alias verto='docker run -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -v $HOME/.ssh/id_rsa:/root/.ssh/id_rsa -e SSH_PRIVATE_KEY=/root/.ssh/id_rsa -it catks/verto:0.2.0'
 
 ```
 
@@ -99,6 +100,7 @@ context(branch(/feature.+/)) {
   2. Add a configuration to enable, disable or specify the number of tags that a single commit can have(eg: only one release and one pre-release)
   3. Configure tag prefix (eg: 'v' to generate v0.1.0)
   4. Improve DSL Syntax Errors Messages(Ruby backtrace is printed currently)
+  5. Adds more specs and test coverage in CI
 
 ## Contributing
 
