@@ -23,11 +23,18 @@ To use verto in the same way that you use any other cli, you can set an alias in
 alias verto='docker run -v $(pwd):/usr/src/project -it catks/verto'
 ```
 
+If you want to use your ssh keys with verto container (for git push) you can set the alias sharing the ssh key file:
+
+```
+alias verto='docker run -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -v $HOME/.ssh/id_rsa:/root/.ssh/id_rsa -e SSH_PRIVATE_KEY=/root/.ssh/id_rsa -it catks/verto'
+
+```
+
 Now you can run any verto command! :)
 
 ## Usage
 
-Now you can run verto right out of the box without any configuration:
+You can run verto right out of the box without any configuration:
 
 ```
   verto tag up --patch # Creates a new tag increasing the patch number
@@ -50,12 +57,12 @@ before { sh('echo "Creating Tag"') }
 
 context(branch('master')) {
   on('before_tag_creation') {
-    versions_changes = "## #{new_version} - #{Time.now.strftime('%d/%m/%Y')}\n"
+    version_changes = "## #{new_version} - #{Time.now.strftime('%d/%m/%Y')}\n"
     exit unless confirm("Create a new release?\n" \
-      "#{versions_changes}"
+      "#{version_changes}"
     )
 
-    file('CHANGELOG.md').prepend(versions_changes)
+    file('CHANGELOG.md').prepend(version_changes)
     git('add CHANGELOG.md')
     git('commit -m "Updates CHANGELOG"')
   }

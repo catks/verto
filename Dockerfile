@@ -19,7 +19,7 @@ RUN bundle install
 
 FROM ruby:2.6.5-alpine
 
-ENV DEPENDENCIES git
+ENV DEPENDENCIES git openssh-client
 
 RUN apk update && \
     apk upgrade && \
@@ -34,8 +34,10 @@ RUN gem install bundler -v 2.0.2
 
 COPY . .
 
+RUN chmod +x docker-entrypoint.sh
+
 RUN rake install
 
 WORKDIR /usr/src/project
 
-ENTRYPOINT ["verto"]
+ENTRYPOINT ["/usr/src/verto/docker-entrypoint.sh"]
