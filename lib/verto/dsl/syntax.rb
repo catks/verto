@@ -10,7 +10,11 @@ module Verto
       end
 
       def branch(*branch_names)
-        branch_names.map(&:to_s).include? current_branch
+        branch_names.any? do |branch|
+          return branch.match?(current_branch) if branch.is_a?(Regexp)
+
+          branch.to_s.include? current_branch
+        end
       end
 
       def context(condition, &block)
@@ -23,6 +27,10 @@ module Verto
 
       def sh(command)
         command_executor.run command
+      end
+
+      def sh!(command)
+        raise Verto::ExitError unless sh(command).success?
       end
 
       def command_options
@@ -61,6 +69,16 @@ module Verto
         shell_basic.yes?("#{text} (y/n)")
       end
 
+      def error(text)
+        stderr << text
+      end
+
+      def error!(text)
+        error(text)
+
+        raise Verto::ExitError
+      end
+
       private
 
       def command_executor
@@ -69,6 +87,10 @@ module Verto
 
       def shell_basic
         @shell_basic ||= Thor::Shell::Basic.new
+      end
+
+      def stderr
+        Verto.stderr
       end
     end
   end

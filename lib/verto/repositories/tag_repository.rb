@@ -1,6 +1,6 @@
 module Verto
   class TagRepository
-    include Verto.import[executor: 'system_command_executor']
+    include Verto.import[executor: 'system_command_executor_without_output']
 
     def latest(filter: nil)
       all(filter: filter).last

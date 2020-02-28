@@ -83,6 +83,10 @@ context(branch('qa')) {
   }
 }
 
+context(branch(/feature.+/)) {
+  error "Can't create tags in feature branchs"
+}
+
 ```
 
 #### Verto Syntax
@@ -93,7 +97,8 @@ context(branch('qa')) {
 
   1. Complete README.md description
   2. Add a configuration to enable, disable or specify the number of tags that a single commit can have(eg: only one release and one pre-release)
-  3. Enable the *sh* dsl output to be show as default
+  3. Configure tag prefix (eg: 'v' to generate v0.1.0)
+  4. Improve DSL Syntax Errors Messages(Ruby backtrace is printed currently)
 
 ## Contributing
 

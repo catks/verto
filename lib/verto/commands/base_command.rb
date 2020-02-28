@@ -7,7 +7,7 @@ module Verto
     private
 
     def command_error!(message)
-      raise Thor::Error, message
+      raise Verto::CommandError, message
     end
 
     def options

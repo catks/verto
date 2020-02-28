@@ -9,7 +9,9 @@ task :default => :spec
 
 desc 'Verto REPL'
 task :console do
-  exec 'irb -r ./lib/verto -r ./spec/helpers/test_repo.rb'
+  require 'irb'
+  ARGV.clear
+  IRB.start
 end
 
 namespace :temp_repo do
@@ -20,6 +22,6 @@ namespace :temp_repo do
 
   desc 'clear the temp git repo'
   task :clear do
-    TestRepo.new.clear
+    TestRepo.new.clear!
   end
 end
