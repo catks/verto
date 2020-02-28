@@ -235,12 +235,12 @@ RSpec.describe Verto::DSL do
       it 'saves the error on error.log file' do
         stderr = Verto.container.resolve('stderr')
 
-        allow(stderr).to receive(:<<)
+        allow(stderr).to receive(:puts)
 
         load_file
 
         # TODO: Improve test, seeing the file content (Currently only write after proccess finish)
-        expect(stderr).to have_received(:<<).with("Can't create tags in feature branch")
+        expect(stderr).to have_received(:puts).with("Can't create tags in feature branch")
       end
     end
   end

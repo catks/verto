@@ -70,7 +70,7 @@ module Verto
       end
 
       def error(text)
-        stderr << text
+        stderr.puts text
       end
 
       def error!(text)
