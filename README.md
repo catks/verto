@@ -13,6 +13,16 @@ Verto is distributed as a ruby gem, to install run:
 $ gem install verto
 ```
 
+### With Rbenv
+
+If you use Rbenv you can install verto only once and create a alias in your .basrc, .zshrc, etc:
+
+#### ZSH
+    $ RBENV_VERSION=$(rbenv global) gem install verto && echo "alias verto='RBENV_VERSION=$(rbenv global) verto'" >> ~/.zshrc
+
+### Bash
+    $ RBENV_VERSION=$(rbenv global) gem install verto && echo "alias verto='RBENV_VERSION=$(rbenv global) verto'" >> ~/.bashrc
+
 
 ### Docker Image
 
@@ -31,6 +41,13 @@ alias verto='docker run -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/ro
 
 ```
 
+You can also share the git config file with:
+
+
+```
+alias verto='docker run -v ~/.gitconfig:/etc/gitconfig -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -v $HOME/.ssh/id_rsa:/root/.ssh/id_rsa -e SSH_PRIVATE_KEY=/root/.ssh/id_rsa -it catks/verto:0.2.0'
+
+```
 Now you can run any verto command! :)
 
 ## Usage
