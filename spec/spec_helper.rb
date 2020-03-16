@@ -1,9 +1,14 @@
 require "bundler/setup"
-require "verto"
 require "byebug"
+
 require_relative "helpers/test_repo"
 require_relative "helpers/test_command"
 require_relative "helpers/file_helpers"
+
+require 'simplecov'
+SimpleCov.start
+
+require "verto"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

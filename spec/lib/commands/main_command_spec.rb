@@ -47,8 +47,8 @@ RSpec.describe Verto::MainCommand do
            expect { up }.to raise_error(SystemExit) do |error|
              expect(stderr.string).to eq(
                <<~TEXT
-                Project doesn't have a previous tag version, create a new tag with git or verto init.
-                eg: `git tag 0.0.1` or `verto init`
+                Project doesn't have a previous tag version, create a new tag with git.
+                eg: `git tag 0.1.0`
                TEXT
              )
            end

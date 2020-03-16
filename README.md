@@ -1,6 +1,7 @@
 # Verto
 [![Build Status](https://travis-ci.org/catks/verto.svg?branch=master)](https://travis-ci.org/catks/verto)
-[![Maintainability](https://api.codeclimate.com/v1/badges/b699d13df33e33bbe2d0/maintainability)](https://codeclimate.com/github/catks/verto/maintainability)\
+[![Maintainability](https://api.codeclimate.com/v1/badges/b699d13df33e33bbe2d0/maintainability)](https://codeclimate.com/github/catks/verto/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/39e7c6f1f5f57b8555ed/test_coverage)](https://codeclimate.com/github/catks/verto/test_coverage)\
 Verto is a CLI to generate git tags (following the [Semantic Versioning](https://semver.org/) system)
 
 ## Installation
@@ -103,6 +104,7 @@ context(branch('qa')) {
 
 context(branch(/feature.+/)) {
   error "Can't create tags in feature branchs"
+  exit
 }
 
 ```

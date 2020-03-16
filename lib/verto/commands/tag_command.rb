@@ -48,8 +48,8 @@ module Verto
     def validate_latest_tag!(latest_tag)
       command_error!(
         <<~TEXT
-          Project doesn't have a previous tag version, create a new tag with git or verto init.
-          eg: `git tag 0.0.1` or `verto init`
+          Project doesn't have a previous tag version, create a new tag with git.
+          eg: `git tag 0.1.0`
         TEXT
       ) unless latest_tag
     end
