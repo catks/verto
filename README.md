@@ -21,7 +21,7 @@ If you use Rbenv you can install verto only once and create a alias in your .bas
 #### ZSH
     $ RBENV_VERSION=$(rbenv global) gem install verto && echo "alias verto='RBENV_VERSION=$(rbenv global) verto'" >> ~/.zshrc
 
-### Bash
+#### Bash
     $ RBENV_VERSION=$(rbenv global) gem install verto && echo "alias verto='RBENV_VERSION=$(rbenv global) verto'" >> ~/.bashrc
 
 
@@ -32,23 +32,31 @@ You don't need to install verto in your machine, you can run verto via the docke
 To use verto in the same way that you use any other cli, you can set an alias in your `.bashrc`, `.zshrc`, etc:
 
 ```
-alias verto='docker run -v $(pwd):/usr/src/project -it catks/verto:0.2.0'
+alias verto='docker run -v $(pwd):/usr/src/project -it catks/verto:0.2.1'
 ```
 
-If you want to use your ssh keys with verto container (for git push) you can set the alias sharing the ssh key file:
+If you want you can share your git configuration and known_hosts with:
 
 ```
-alias verto='docker run -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -v $HOME/.ssh/id_rsa:/root/.ssh/id_rsa -e SSH_PRIVATE_KEY=/root/.ssh/id_rsa -it catks/verto:0.2.0'
+alias verto='docker run -v ~/.gitconfig:/etc/gitconfig -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -it catks/verto:0.2.1'
 
 ```
 
-You can also share the git config file with:
+You can also use your ssh keys with verto container (for git push):
+
+```
+alias verto='docker run -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -v $HOME/.ssh/id_rsa:/root/.ssh/id_rsa -e SSH_PRIVATE_KEY=/root/.ssh/id_rsa -it catks/verto:0.2.1'
+
+```
+
+Or share the git config, known_hosts and ssh_keys:
 
 
 ```
-alias verto='docker run -v ~/.gitconfig:/etc/gitconfig -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -v $HOME/.ssh/id_rsa:/root/.ssh/id_rsa -e SSH_PRIVATE_KEY=/root/.ssh/id_rsa -it catks/verto:0.2.0'
+alias verto='docker run -v ~/.gitconfig:/etc/gitconfig -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -v $HOME/.ssh/id_rsa:/root/.ssh/id_rsa -e SSH_PRIVATE_KEY=/root/.ssh/id_rsa -it catks/verto:0.2.1'
 
 ```
+
 Now you can run any verto command! :)
 
 ## Usage
