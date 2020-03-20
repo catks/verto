@@ -75,6 +75,9 @@ If you need a more specific configuration or want to reflect your development pr
 
 ```ruby
 # Vertofile
+
+verto_version "0.2.1"
+
 config {
   pre_release.initial_number = 0
   project.path = "my/repo/path"

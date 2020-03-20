@@ -1,12 +1,33 @@
 module Verto
   module DSL
     module Syntax
+      def verto_version(expected_version_string)
+        expected_version = Verto::SemanticVersion.new(expected_version_string)
+
+        verto_version = Verto::SemanticVersion.new(Verto::VERSION)
+
+        error_message = "Current Verto version is #{verto_version}, required version is #{expected_version} or higher"
+        raise Verto::ExitError, error_message unless expected_version <= verto_version
+      end
+
       def config(&block)
         Verto.config.instance_eval(&block)
       end
 
+      def latest_version
+        @latest_version ||= latest_semantic_version_for(:all)
+      end
+
+      def latest_release_version
+        @latest_release_version ||= latest_semantic_version_for(:release_only)
+      end
+
+      def latest_pre_release_version
+        @latest_pre_release_version ||= latest_semantic_version_for(:pre_release_only)
+      end
+
       def current_branch
-        git('rev-parse --abbrev-ref HEAD').output.chomp.strip
+        git('rev-parse --abbrev-ref HEAD', stdout_output: false).output.chomp.strip
       end
 
       def branch(*branch_names)
@@ -21,16 +42,16 @@ module Verto
         block.call if condition
       end
 
-      def git(subcommand)
-        sh("git #{subcommand}")
+      def git(subcommand, stdout_output: :from_config)
+        sh("git #{subcommand}", stdout_output: stdout_output)
       end
 
-      def sh(command)
-        command_executor.run command
+      def sh(command, stdout_output: :from_config)
+        command_executor(stdout_output: stdout_output).run command
       end
 
-      def sh!(command)
-        raise Verto::ExitError unless sh(command).success?
+      def sh!(command, stdout_output: :from_config)
+        raise Verto::ExitError unless sh(command, stdout_output: stdout_output).success?
       end
 
       def command_options
@@ -81,8 +102,14 @@ module Verto
 
       private
 
-      def command_executor
-        @command_executor ||= SystemCommandExecutor.new
+      def command_executor(stdout_output: :from_config)
+        @executors ||= {
+          from_config: SystemCommandExecutor.new,
+          true => SystemCommandExecutor.new(stdout: $stdout),
+          false => SystemCommandExecutor.new(stdout: nil)
+        }
+
+        @executors[stdout_output]
       end
 
       def shell_basic
@@ -91,6 +118,18 @@ module Verto
 
       def stderr
         Verto.stderr
+      end
+
+      def tag_repository
+        @tag_repository ||= TagRepository.new
+      end
+
+      def latest_semantic_version_for(filter)
+        tag_version = tag_repository.latest(filter: TagFilter.for(filter))
+
+        return SemanticVersion.new('0.0.0') unless tag_version
+
+        SemanticVersion.new(tag_version)
       end
     end
   end

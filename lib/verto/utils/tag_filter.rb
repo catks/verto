@@ -5,6 +5,7 @@ module TagFilter
   FILTERS = {
     release_only: REALEASE_ONLY,
     pre_release_only: PRE_REALEASE_ONLY,
+    all: nil
   }
 
   def self.for(tag_key)

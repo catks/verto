@@ -9,7 +9,7 @@ module Verto
     option :filter, type: :string
 
     def up
-      call_hooks(%i[before before_tag_up])
+      call_hooks(%i[before before_tag_up], with_attributes: { command_options: options} )
 
       validate_version_option_presence!
 
@@ -19,18 +19,11 @@ module Verto
 
       latest_version = SemanticVersion.new(latest_tag)
 
-      version_up_options = options.select { |key,value| value == true }.keys.map(&:to_sym) & [:major, :minor, :patch]
-
-      new_version = version_up_options.reduce(latest_version) { |version, up_option| version.up(up_option) }
-
-      if options[:pre_release]
-        identifier = pre_release_configured? ? options[:pre_release] : latest_version.pre_release.name
-        new_version = new_version.with_pre_release(identifier)
-        new_version = new_version.up(:pre_release) if new_version.pre_release.name == latest_version.pre_release.name
-      end
+      new_version = up_version(latest_version, options)
 
       validate_new_version!(new_version, latest_version)
-      call_hooks(:before_tag_creation, with_attributes: { new_version: new_version, latest_version: latest_version } )
+
+      call_hooks(:before_tag_creation, with_attributes: { new_version: new_version } )
       tag_repository.create!(new_version.to_s)
 
       call_hooks(:after_tag_up, with_attributes: { new_version: new_version })
@@ -40,6 +33,20 @@ module Verto
     private
 
     include Verto.import['tag_repository']
+
+    def up_version(version, options)
+      version_up_options = options.select { |key,value| value == true }.keys.map(&:to_sym) & [:major, :minor, :patch]
+
+      new_version = version_up_options.reduce(version) { |version, up_option| version.up(up_option) }
+
+      if options[:pre_release]
+        identifier = pre_release_configured? ? options[:pre_release] : version.pre_release.name
+        new_version = new_version.with_pre_release(identifier)
+        new_version = new_version.up(:pre_release) if new_version.pre_release.name == version.pre_release.name
+      end
+
+      new_version
+    end
 
     def pre_release_configured?
       options[:pre_release] != 'pre_release'

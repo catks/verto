@@ -4,6 +4,8 @@ RSpec.describe Verto::DSL do
 
     let(:vertofile) do
       <<~VERTO
+
+        verto_version "#{verto_version}"
         config {
           pre_release.initial_number = 0
           project.path = "#{project_path}"
@@ -35,6 +37,11 @@ RSpec.describe Verto::DSL do
 
           before_command('tag_up') {
             command_options.add(pre_release: 'rc')
+
+            has_a_up_version_number = !command_options.keys.any? { |key| [:major, :minor, :patch].include?(key) }
+
+            command_options.add(patch: true) if latest_pre_release_version < latest_release_version && !has_a_up_version_number
+
             sh('echo "Before Hook" > before_hook')
           }
 
@@ -64,6 +71,7 @@ RSpec.describe Verto::DSL do
       VERTO
     end
 
+    let(:verto_version) { Verto::VERSION}
     let(:project_path) { Verto.root_path.join('tmp/test_repo') }
     let(:vertofile_path) { project_path.join('Vertofile') }
     let(:package_json_path) { project_path.join('package.json') }
@@ -241,6 +249,15 @@ RSpec.describe Verto::DSL do
 
         # TODO: Improve test, seeing the file content (Currently only write after proccess finish)
         expect(stderr).to have_received(:puts).with("Can't create tags in feature branch")
+      end
+    end
+
+    context 'when the verto_version is higher than the current version' do
+      let(:verto_version) { Verto::SemanticVersion.new(Verto::VERSION).up(:major) }
+
+      it 'exits in error' do
+        expect { load_file }
+          .to raise_error(Verto::ExitError, "Current Verto version is #{Verto::VERSION}, required version is #{verto_version} or higher")
       end
     end
   end
