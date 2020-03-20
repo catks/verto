@@ -8,7 +8,8 @@ begin
   Verto::DSL.load_file(vertofile_path) if File.exists?(vertofile_path)
 
   Verto::MainCommand.start(ARGV)
-rescue Verto::ExitError
+rescue Verto::ExitError => ex
+  Verto.stderr.puts ex.message
   Verto.stderr.puts 'Exiting Verto...'
   exit 1
 end

@@ -5,6 +5,7 @@ require "dry-auto_inject"
 require "pathname"
 
 require "verto/version"
+require "verto/utils/command_options"
 
 module Verto
   extend Dry::Configurable
@@ -23,7 +24,7 @@ module Verto
   end
 
   setting :hooks, []
-  setting :command_options, Class.new(Hash) { alias_method :add, :merge! }.new
+  setting :command_options, CommandOptions.new
 
   ExitError = Class.new(Thor::Error)
   CommandError = Class.new(ExitError)

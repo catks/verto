@@ -27,6 +27,11 @@ RSpec.describe Verto::MainCommand do
       subject(:up) { described_class.start(['tag','up'] + options ) }
 
       let(:options) { [] }
+      let(:vertofile) { nil }
+
+      before do
+        Verto::DSL::Interpreter.new.evaluate(vertofile) if vertofile
+      end
 
       context 'when the repository doesnt have a previous tag' do
          before do
