@@ -29,7 +29,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency             "thor", "~> 1.0.1"
   spec.add_dependency             "dry-configurable", "~> 0.8"
   spec.add_dependency             "dry-container", "~> 0.7"
-  spec.add_dependency             "dry-auto_inject", "~> 0.6"
+  spec.add_dependency             "dry-auto_inject", "~> 0.7"
 
   spec.add_development_dependency "byebug"
   spec.add_development_dependency "bundler", "~> 2.0"

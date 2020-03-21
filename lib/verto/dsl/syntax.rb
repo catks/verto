@@ -27,7 +27,7 @@ module Verto
       end
 
       def current_branch
-        git('rev-parse --abbrev-ref HEAD', stdout_output: false).output.chomp.strip
+        git('rev-parse --abbrev-ref HEAD', output: false).output.chomp.strip
       end
 
       def branch(*branch_names)
@@ -42,16 +42,16 @@ module Verto
         block.call if condition
       end
 
-      def git(subcommand, stdout_output: :from_config)
-        sh("git #{subcommand}", stdout_output: stdout_output)
+      def git(subcommand, output: :from_config)
+        sh("git #{subcommand}", output: output)
       end
 
-      def sh(command, stdout_output: :from_config)
-        command_executor(stdout_output: stdout_output).run command
+      def sh(command, output: :from_config)
+        command_executor(output: output).run command
       end
 
-      def sh!(command, stdout_output: :from_config)
-        raise Verto::ExitError unless sh(command, stdout_output: stdout_output).success?
+      def sh!(command, output: :from_config)
+        raise Verto::ExitError unless sh(command, output: output).success?
       end
 
       def command_options
@@ -102,14 +102,14 @@ module Verto
 
       private
 
-      def command_executor(stdout_output: :from_config)
+      def command_executor(output: :from_config)
         @executors ||= {
-          from_config: SystemCommandExecutor.new,
-          true => SystemCommandExecutor.new(stdout: $stdout),
-          false => SystemCommandExecutor.new(stdout: nil)
+          from_config: Verto::SystemCommandExecutor.new,
+          true => Verto::SystemCommandExecutor.new(stdout: $stdout, stderr: $stderr),
+          false => Verto::SystemCommandExecutor.new(stdout: nil, stderr: nil),
         }
 
-        @executors[stdout_output]
+        @executors[output]
       end
 
       def shell_basic
