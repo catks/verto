@@ -46,7 +46,7 @@ RSpec.describe Verto::DSL do
           }
 
           after_command('tag_up') {
-            sh('echo "After Hook" > after_hook')
+            sh('echo "After Hook" > after_hook', output: false)
 
             context(env('DEBUG') == 'true') {
               file('releases.log').append(new_version.to_s)
