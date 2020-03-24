@@ -11,7 +11,7 @@ module Verto
     end
 
     def options
-      Verto.config.command_options.merge(super)
+      Verto.config.command_options.merge!(super)
     end
 
     def call_hooks(moments = [], with_attributes: {})
