@@ -148,8 +148,6 @@ RSpec.describe Verto::MainCommand do
             end
           end
 
-
-
           context 'when the latest tag is a pre_release' do
             let(:last_tag) { '1.9.19-rc.10' }
 
