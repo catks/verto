@@ -20,6 +20,9 @@ RSpec.describe Verto::MainCommand do
 
   after do
     repo.clear!
+    # TODO: Create a config reload! to get defaults
+    Verto.config.command_options = Verto::CommandOptions.new
+    Verto.config.hooks = []
   end
 
   describe 'tag' do
@@ -112,6 +115,40 @@ RSpec.describe Verto::MainCommand do
             result = repo.run('git log --decorate HEAD')
             expect(result).to include('tag: 1.0.20')
           end
+
+          context 'when Vertofile have a command_add option' do
+            let(:vertofile) do
+              <<~VERTOFILE
+                  command_options.add(pre_release: 'rc')
+              VERTOFILE
+            end
+
+            it 'create a tag with the patch number increased' do
+              up
+
+              result = repo.run('git log --decorate HEAD')
+              expect(result).to include('tag: 1.0.20-rc.1')
+            end
+          end
+
+          context 'when Vertofile have a command_add option on before hook' do
+            let(:vertofile) do
+              <<~VERTOFILE
+                before {
+                  command_options.add(pre_release: 'rc')
+                }
+              VERTOFILE
+            end
+
+            it 'create a tag with the patch number increased' do
+              up
+
+              result = repo.run('git log --decorate HEAD')
+              expect(result).to include('tag: 1.0.20-rc.1')
+            end
+          end
+
+
 
           context 'when the latest tag is a pre_release' do
             let(:last_tag) { '1.9.19-rc.10' }
