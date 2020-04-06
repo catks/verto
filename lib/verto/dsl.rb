@@ -9,5 +9,9 @@ module Verto
     def self.interpreter
       @interpreter ||= Interpreter.new
     end
+
+    def self.reset_interpreter!
+      @interpreter = nil
+    end
   end
 end

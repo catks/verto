@@ -73,27 +73,44 @@ You can run verto right out of the box without any configuration:
 
 If you need a more specific configuration or want to reflect your development proccess in some way, you can use Verto DSL creating a Vertofile with the configuration.
 
+You can create a new Vertofile, with `verto init` or following the next example:
+
 ```ruby
 # Vertofile
 
-verto_version "0.3.1"
-
-config {
-  pre_release.initial_number = 0
-  project.path = "my/repo/path"
-}
-
-before { sh('echo "Creating Tag"') }
+verto_version '0.4.0'
 
 context(branch('master')) {
+  before_command('tag_up') {
+    git!('origin master')
+    command_options.add(filter: 'release_only')
+  }
+
   on('before_tag_creation') {
-    version_changes = "## #{new_version} - #{Time.now.strftime('%d/%m/%Y')}\n"
-    exit unless confirm("Create a new release?\n" \
-      "#{version_changes}"
+
+    version_changes = ""
+    bitbucket_changes = sh(
+      %q#git log --oneline --decorate  | grep -B 100 -m 1 "tag:" | grep "pull request" | awk '{print $1}' | xargs git show --format='%b' | grep -v Approved | grep -v "^$" | grep -E "^[[:space:]]*\[.*\]" | sed 's/^[[:space:]]*\(.*\)/ * \1/'#, output: false
+    ).output
+    version_changes = bitbucket_changes
+
+
+    puts "---------------------------"
+    version_changes = "## #{new_version} - #{Time.now.strftime('%d/%m/%Y')}\n#{version_changes}\n"
+    exit unless confirm("Create new Realease?\n" \
+      "---------------------------\n" \
+      "#{version_changes}" \
+      "---------------------------\n"
     )
 
+    # CHANGELOG
     file('CHANGELOG.md').prepend(version_changes)
     git('add CHANGELOG.md')
+
+    # Uncomment to update the version in other files, like package.json
+    # file('package.json').replace(/"(\d+)\.(\d+)\.(\d+)(-?.*)"/, %Q{"#{new_version}"})
+    # git('add package.json')
+
     git('commit -m "Updates CHANGELOG"')
   }
 
@@ -103,21 +120,31 @@ context(branch('master')) {
   }
 }
 
-context(branch('qa')) {
+ context(branch('staging')) {
   before_command('tag_up') {
+    git!('pull origin staging')
     command_options.add(pre_release: 'rc')
   }
 
+  on('before_tag_creation') {
+    # file('package.json').replace(/"(\d+)\.(\d+)\.(\d+)(-?.*)"/, %Q{"#{new_version}"})
+    # git('add package.json')
+
+    git('commit -m "Release QA"')
+    git('commit --allow-empty -m "Staging Release"')
+  }
+
   after_command('tag_up') {
-    file('releases.log').append(new_version.to_s)
+    git('push --tags')
+    git('push origin staging')
   }
 }
 
-context(branch(/feature.+/)) {
-  error "Can't create tags in feature branchs"
+# Block tag creation in other branchs
+context(!branch('master', 'staging')) {
+  error "Tags only can be created in master or staging branch"
   exit
 }
-
 ```
 
 #### Verto Syntax

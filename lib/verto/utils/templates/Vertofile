@@ -1,0 +1,67 @@
+verto_version '0.4.0'
+
+context(branch('master')) {
+  before_command('tag_up') {
+    git!('origin master')
+    command_options.add(filter: 'release_only')
+  }
+
+  on('before_tag_creation') {
+
+    version_changes = ""
+    # Uncomment to get Bitbucket Merged PRs Titles as changes to add in CHANGELOG.
+    # bitbucket_changes = sh(
+    #  %q#git log --oneline --decorate  | grep -B 100 -m 1 "tag:" | grep "pull request" | awk '{print $1}' | xargs git show --format='%b' | grep -v Approved | grep -v "^$" | grep -E "^[[:space:]]*\[.*\]" | sed 's/^[[:space:]]*\(.*\)/ * \1/'#, output: false
+    # ).output
+    # version_changes = bitbucket_changes
+
+
+    puts "---------------------------"
+    version_changes = "## #{new_version} - #{Time.now.strftime('%d/%m/%Y')}\n#{version_changes}\n"
+    exit unless confirm("Create new Realease?\n" \
+      "---------------------------\n" \
+      "#{version_changes}" \
+      "---------------------------\n"
+    )
+
+    # CHANGELOG
+    file('CHANGELOG.md').prepend(version_changes)
+    git('add CHANGELOG.md')
+
+    # Uncomment to update the version in other files, like package.json
+    # file('package.json').replace(/"(\d+)\.(\d+)\.(\d+)(-?.*)"/, %Q{"#{new_version}"})
+    # git('add package.json')
+
+    git('commit -m "Updates CHANGELOG"')
+  }
+
+  after_command('tag_up') {
+    git('push --tags')
+    git('push origin master')
+  }
+}
+
+# Uncomment to get a specific pre_release proccess, like a staging or qa branch
+# context(branch('staging')) {
+#  before_command('tag_up') {
+#    git!('pull origin staging')
+#    command_options.add(pre_release: 'rc')
+#  }
+#
+#  on('before_tag_creation') {
+#    file('package.json').replace(/"(\d+)\.(\d+)\.(\d+)(-?.*)"/, %Q{"#{new_version}"}) # Atualiza versão do package.json
+#    git('add package.json')
+#    git('commit --allow-empty -m "Staging Release"')
+#  }
+
+#  after_command('tag_up') {
+#    git('push --tags')
+#    git('push origin staging')
+#  }
+#}
+
+# Uncomment to block tag creation in other branchs
+#context(!branch('master', 'staging')) {
+#  error "Tags only can be created in master or staging branch"
+#  exit
+#}
