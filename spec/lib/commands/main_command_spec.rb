@@ -25,6 +25,33 @@ RSpec.describe Verto::MainCommand do
     Verto.config.hooks = []
   end
 
+  describe 'init' do
+    subject(:init) { described_class.start(['init'] + options) }
+    let(:options) { [] }
+    let(:project_path) { Pathname.new(Verto.config.project.path) }
+
+    context 'when Vertofile doesnt exists' do
+      it 'creates a Vertofile' do
+        expect { init }.to change { project_path.join('Vertofile').exist? }.from(false).to(true)
+      end
+    end
+
+    context 'when Vertofile exists' do
+      before { repo.run 'touch Vertofile'}
+
+      it 'exits on error' do
+        expect { init }.to raise_error(SystemExit) do |error|
+          expect(stderr.string).to eq(
+            <<~TEXT
+                Project already have a Vertofile.
+                If you want to generate a new with verto init, delete the current one with: `rm Vertofile`
+            TEXT
+          )
+        end
+      end
+    end
+  end
+
   describe 'tag' do
     describe 'up' do
       subject(:up) { described_class.start(['tag','up'] + options ) }
@@ -226,13 +253,13 @@ RSpec.describe Verto::MainCommand do
 
 
             context 'when the latest tag is a pre_release' do
-              let(:last_tag) { '1.9.19-rc.19' }
+              let(:last_tag) { '1.9.19-rc.9' }
 
               it 'create a tag with the pre_release number increased and the default identifier' do
                 up
 
                 result = repo.run('git log --decorate HEAD')
-                expect(result).to include('tag: 1.9.19-rc.20')
+                expect(result).to include('tag: 1.9.19-rc.10')
               end
             end
           end

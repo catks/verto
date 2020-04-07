@@ -27,7 +27,7 @@ module Verto
       end
 
       def current_branch
-        git('rev-parse --abbrev-ref HEAD', output: false).output.chomp.strip
+        @current_branch ||= git('rev-parse --abbrev-ref HEAD', output: false).output.chomp.strip
       end
 
       def branch(*branch_names)
@@ -44,6 +44,10 @@ module Verto
 
       def git(subcommand, output: :from_config)
         sh("git #{subcommand}", output: output)
+      end
+
+      def git!(subcommand, output: :from_config)
+        sh!("git #{subcommand}", output: output)
       end
 
       def sh(command, output: :from_config)

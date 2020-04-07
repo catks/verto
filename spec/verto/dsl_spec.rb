@@ -22,7 +22,7 @@ RSpec.describe Verto::DSL do
 
           on('before_tag_creation') {
             file('CHANGELOG.md').prepend(\"## \#{new_version} - \#{Time.now.strftime('%d/%m/%Y')}")
-            git('add CHANGELOG.md')
+            git!('add CHANGELOG.md')
             git('commit -m "Updates CHANGELOG"')
           }
         }
@@ -65,6 +65,10 @@ RSpec.describe Verto::DSL do
           error "Can't create tags in feature branch"
         }
 
+        context(branch('wip')) {
+          file('love').prepend('what_is')
+        }
+
         after {
           file('verto.log').append(Time.now.strftime('%d-%m-%Y'))
         }
@@ -87,6 +91,7 @@ RSpec.describe Verto::DSL do
       IO.write(package_json_path, '{ "version": "0.0.0" }')
       Verto.config.hooks = [] # Reset Hooks
       command_executor.run('touch CHANGELOG.md')
+      described_class.reset_interpreter!
     end
 
     around(:each) do |ex|
@@ -249,6 +254,15 @@ RSpec.describe Verto::DSL do
 
         # TODO: Improve test, seeing the file content (Currently only write after proccess finish)
         expect(stderr).to have_received(:puts).with("Can't create tags in feature branch")
+      end
+    end
+
+    context 'when current branch is a wip brach' do
+      let(:current_branch) { 'wip' }
+
+      it 'exits in error when executing the command' do
+        expect { load_file }
+          .to raise_error(Verto::DSL::Interpreter::Error, %r{No such file or directory @ rb_sysopen - .+verto/tmp/test_repo/love})
       end
     end
 

@@ -3,10 +3,18 @@ module Verto
     class Interpreter
       include DSL::Syntax
 
+      # TODO: Wrap stacktrace
+      Error = Class.new(Verto::ExitError)
+
       def evaluate(vertofile_content=nil, attributes: {}, &block)
         with_attributes(attributes) do
           vertofile_content ? instance_eval(vertofile_content)  : instance_eval(&block)
         end
+
+      rescue StandardError => error
+        raise error if error.is_a?(Verto::ExitError)
+
+        raise Error, error.message
       end
 
       private
