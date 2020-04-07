@@ -73,7 +73,7 @@ You can run verto right out of the box without any configuration:
 
 If you need a more specific configuration or want to reflect your development proccess in some way, you can use Verto DSL creating a Vertofile with the configuration.
 
-You can create a new Vertofile, with `verto init` or following the next example:
+You can create a new Vertofile with `verto init` or following the next example:
 
 ```ruby
 # Vertofile
