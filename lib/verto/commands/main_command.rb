@@ -14,6 +14,12 @@ module Verto
       Template.render('Vertofile', to: path)
     end
 
+    desc "version", "Show Verto version"
+
+    def version
+      Verto.stdout.puts Verto::VERSION
+    end
+
     private
 
     def validate_current_vertofile!(path)

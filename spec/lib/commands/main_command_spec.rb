@@ -4,9 +4,11 @@ RSpec.describe Verto::MainCommand do
   before do
     Verto.config.project.path = Verto.root_path.join('tmp/test_repo/').to_s
     $stderr = stderr
+    $stdout = stdout
   end
 
   let(:repo) { TestRepo.new }
+  let(:stdout) { StringIO.new }
   let(:stderr) { StringIO.new }
 
   around(:each) do |ex|
@@ -52,6 +54,17 @@ RSpec.describe Verto::MainCommand do
     end
   end
 
+  describe 'version' do
+    subject(:version) { described_class.start(['version']) }
+
+    it 'shows the verto version' do
+      version
+
+      expect(stdout.string).to eq("#{Verto::VERSION}\n")
+    end
+  end
+
+  # TODO: Move to a tag_command specfile
   describe 'tag' do
     describe 'up' do
       subject(:up) { described_class.start(['tag','up'] + options ) }

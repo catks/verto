@@ -66,6 +66,10 @@ module Verto
     @import ||= Dry::AutoInject(container)
   end
 
+  def self.stdout
+    Verto.container.resolve('stdout')
+  end
+
   def self.stderr
     Verto.container.resolve('stderr')
   end
