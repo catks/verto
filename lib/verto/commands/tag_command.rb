@@ -35,14 +35,15 @@ module Verto
     include Verto.import['tag_repository']
 
     def up_version(version, options)
-      version_up_options = options.select { |key,value| value == true }.keys.map(&:to_sym) & [:major, :minor, :patch]
+      up_options = options.select { |key,value| value == true }.keys.map(&:to_sym) & [:major, :minor, :patch]
+      up_option = up_options.sort.first
 
-      new_version = version_up_options.reduce(version) { |version, up_option| version.up(up_option) }
+      new_version = version.up(up_option)
 
       if options[:pre_release]
         identifier = pre_release_configured? ? options[:pre_release] : version.pre_release.name
         new_version = new_version.with_pre_release(identifier)
-        new_version = new_version.up(:pre_release) if new_version.pre_release.name == version.pre_release.name
+        new_version = new_version.up(:pre_release) if new_version.pre_release.name == version.pre_release.name && new_version == version
       end
 
       new_version

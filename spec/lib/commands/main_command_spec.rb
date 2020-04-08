@@ -197,6 +197,18 @@ RSpec.describe Verto::MainCommand do
                 expect(result).to include('tag: 0.0.2)')
               end
             end
+
+            context 'and with a --pre_release' do
+              let(:options) { ['--patch', '--pre_release=rc'] }
+              let(:last_tag) { '1.9.19-rc.1' }
+
+              it 'upgrades only the patch number' do
+                up
+
+                result = repo.run('git log --decorate HEAD')
+                expect(result).to include('tag: 1.9.20-rc.1)')
+              end
+            end
           end
         end
 
@@ -222,6 +234,41 @@ RSpec.describe Verto::MainCommand do
             end
           end
 
+          context 'and with a minor' do
+            let(:options) { ['--minor', '--patch'] }
+            let(:last_tag) { '1.9.19' }
+
+            it 'upgrades only the minor number' do
+              up
+
+              result = repo.run('git log --decorate HEAD')
+              expect(result).to include('tag: 1.10.0)')
+            end
+          end
+
+          context 'and with a --patch' do
+            let(:options) { ['--minor', '--patch'] }
+            let(:last_tag) { '1.9.19-rc.1' }
+
+            it 'upgrades only the minor number' do
+              up
+
+              result = repo.run('git log --decorate HEAD')
+              expect(result).to include('tag: 1.10.0-rc.1)')
+            end
+          end
+
+          context 'and with a --pre_release' do
+            let(:options) { ['--minor', '--pre_release=rc'] }
+            let(:last_tag) { '1.9.19-rc.1' }
+
+            it 'upgrades only the minor number' do
+              up
+
+              result = repo.run('git log --decorate HEAD')
+              expect(result).to include('tag: 1.10.0-rc.1)')
+            end
+          end
         end
 
         context 'with --major option' do
@@ -245,6 +292,43 @@ RSpec.describe Verto::MainCommand do
               expect(result).to include('tag: 2.0.0-rc.1')
             end
           end
+
+          context 'and with a --minor' do
+            let(:options) { ['--major', '--minor'] }
+            let(:last_tag) { '1.9.19-rc.1' }
+
+            it 'upgrades only the minor number' do
+              up
+
+              result = repo.run('git log --decorate HEAD')
+              expect(result).to include('tag: 2.0.0-rc.1)')
+            end
+          end
+
+          context 'and with a --patch' do
+            let(:options) { ['--major', '--patch'] }
+            let(:last_tag) { '1.9.19-rc.1' }
+
+            it 'upgrades only the minor number' do
+              up
+
+              result = repo.run('git log --decorate HEAD')
+              expect(result).to include('tag: 2.0.0-rc.1)')
+            end
+          end
+
+          context 'and with a --pre_release' do
+            let(:options) { ['--major', '--pre_release=rc'] }
+            let(:last_tag) { '1.9.19-rc.1' }
+
+            it 'upgrades only the minor number' do
+              up
+
+              result = repo.run('git log --decorate HEAD')
+              expect(result).to include('tag: 2.0.0-rc.1)')
+            end
+          end
+
         end
 
         context 'with --pre-release option' do
