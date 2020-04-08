@@ -10,7 +10,7 @@ Verto is a CLI to generate git tags (following the [Semantic Versioning](https:/
 ### Ruby Gem
 Verto is distributed as a ruby gem, to install run:
 
-```
+```shell
 $ gem install verto
 ```
 
@@ -31,20 +31,20 @@ You don't need to install verto in your machine, you can run verto via the docke
 
 To use verto in the same way that you use any other cli, you can set an alias in your `.bashrc`, `.zshrc`, etc:
 
-```
+```shell
 alias verto='docker run -v $(pwd):/usr/src/project -it catks/verto:0.4.1'
 ```
 
 If you want you can share your git configuration and known_hosts with:
 
-```
+```shell
 alias verto='docker run -v ~/.gitconfig:/etc/gitconfig -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -it catks/verto:0.4.1'
 
 ```
 
 You can also use your ssh keys with verto container (for git push):
 
-```
+```shell
 alias verto='docker run -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -v $HOME/.ssh/id_rsa:/root/.ssh/id_rsa -e SSH_PRIVATE_KEY=/root/.ssh/id_rsa -it catks/verto:0.4.1'
 
 ```
@@ -52,7 +52,7 @@ alias verto='docker run -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/ro
 Or share the git config, known_hosts and ssh_keys:
 
 
-```
+```shell
 alias verto='docker run -v ~/.gitconfig:/etc/gitconfig -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -v $HOME/.ssh/id_rsa:/root/.ssh/id_rsa -e SSH_PRIVATE_KEY=/root/.ssh/id_rsa -it catks/verto:0.4.1'
 
 ```
@@ -63,10 +63,14 @@ Now you can run any verto command! :)
 
 You can run verto right out of the box without any configuration:
 
-```
+```shell
   verto tag up --patch # Creates a new tag increasing the patch number
   verto tag up --minor # Creates a new tag increasing the minor number
   verto tag up --major # Creates a new tag increasing the major number
+  
+  # You can also work with pre release identifiers
+  verto tag up --major --pre_release=rc # Creates a new tag increasing the major number and adding the rc identifier
+  verto tag up --pre_release=rc # Creates a new tag increasing the pre_release number, eg: rc.1 to rc.2
 ```
 
 ### Verto DSL
