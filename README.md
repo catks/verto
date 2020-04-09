@@ -67,10 +67,21 @@ You can run verto right out of the box without any configuration:
   verto tag up --patch # Creates a new tag increasing the patch number
   verto tag up --minor # Creates a new tag increasing the minor number
   verto tag up --major # Creates a new tag increasing the major number
-  
+
   # You can also work with pre release identifiers
   verto tag up --major --pre_release=rc # Creates a new tag increasing the major number and adding the rc identifier
   verto tag up --pre_release=rc # Creates a new tag increasing the pre_release number, eg: rc.1 to rc.2
+
+  # Or ensure that a release tag will be created, eg: with a last tag 1.1.1-rc.1
+
+  verto tag up --release # Creates a 1.1.1 tag
+
+  # You can filter the tags you want to consider for increasing
+
+  verto tag up --patch --filter=release_only # For Realease Tags Only
+  verto tag up --patch --filter=pre_release_only # For Pre Realease Tags Only
+  verto tag up --patch --filter='\d+\.\d+\.\d+-alpha.*' # Custom Regexp!
+
 ```
 
 ### Verto DSL

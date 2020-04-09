@@ -3,8 +3,11 @@ require 'stringio'
 RSpec.describe Verto::MainCommand do
   before do
     Verto.config.project.path = Verto.root_path.join('tmp/test_repo/').to_s
+    # TODO: Remove set int he global variables
     $stderr = stderr
     $stdout = stdout
+    allow(Verto).to receive(:stdout).and_return(stdout)
+    allow(Verto).to receive(:stderr).and_return(stderr)
   end
 
   let(:repo) { TestRepo.new }
@@ -77,30 +80,30 @@ RSpec.describe Verto::MainCommand do
       end
 
       context 'when the repository doesnt have a previous tag' do
-         before do
+        before do
           repo.reload!
-         end
+        end
 
-         let(:options) { ['--patch'] }
+        let(:options) { ['--patch'] }
 
-         it 'dont create a tag' do
-           expect { up }.to raise_error(SystemExit) do |error|
-             expect(error.status).to eq(1)
-             result = repo.run('git log --decorate HEAD')
-             expect(result).to_not include('tag:')
-           end
-         end
+        it 'dont create a tag' do
+          expect { up }.to raise_error(SystemExit) do |error|
+            expect(error.status).to eq(1)
+            result = repo.run('git log --decorate HEAD')
+            expect(result).to_not include('tag:')
+          end
+        end
 
-         it 'exits on error' do
-           expect { up }.to raise_error(SystemExit) do |error|
-             expect(stderr.string).to eq(
-               <<~TEXT
+        it 'exits on error' do
+          expect { up }.to raise_error(SystemExit) do |error|
+            expect(stderr.string).to eq(
+              <<~TEXT
                 Project doesn't have a previous tag version, create a new tag with git.
                 eg: `git tag 0.1.0`
-               TEXT
-             )
-           end
-         end
+              TEXT
+            )
+          end
+        end
       end
 
 
@@ -156,6 +159,17 @@ RSpec.describe Verto::MainCommand do
             expect(result).to include('tag: 1.0.20')
           end
 
+          it 'shows the created tag in stderr' do
+            up
+
+            expect(stderr.string).to eq(
+              <<~TEXT
+              Creating Tag 1.0.20...
+              Tag 1.0.20 Created!
+              TEXT
+            )
+          end
+
           context 'when Vertofile have a command_add option' do
             let(:vertofile) do
               <<~VERTOFILE
@@ -208,6 +222,19 @@ RSpec.describe Verto::MainCommand do
 
                 result = repo.run('git log --decorate HEAD')
                 expect(result).to include('tag: 0.0.2)')
+              end
+            end
+
+            context 'but have a --release option' do
+              let(:older_tag) { '0.0.1' }
+              let(:last_tag) { '0.0.2-rc.1' }
+              let(:options) { ['--patch', '--release'] }
+
+              it 'create a release tag with the patch number increased' do
+                up
+
+                result = repo.run('git log --decorate HEAD')
+                expect(result).to include('tag: 0.0.3)')
               end
             end
 
@@ -410,6 +437,21 @@ RSpec.describe Verto::MainCommand do
                 result = repo.run('git log --decorate HEAD')
                 expect(result).to include('tag: 1.9.19-rc.1')
               end
+            end
+          end
+        end
+
+        context 'with a --release option' do
+          let(:options) { ['--release'] }
+
+          context 'and last tag is a pre_release' do
+            let(:last_tag) { '1.9.19-rc.1' }
+
+            it 'create a release tag' do
+              up
+
+              result = repo.run('git log --decorate HEAD')
+              expect(result).to include('tag: 1.9.19')
             end
           end
         end
