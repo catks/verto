@@ -7,6 +7,7 @@ module Verto
     option :patch, type: :boolean, default: false
     option :pre_release, type: :string
     option :filter, type: :string
+    option :release, type: :boolean, default: false
 
     def up
       call_hooks(%i[before before_tag_up], with_attributes: { command_options: options} )
@@ -24,7 +25,10 @@ module Verto
       validate_new_version!(new_version, latest_version)
 
       call_hooks(:before_tag_creation, with_attributes: { new_version: new_version } )
+
+      stderr.puts "Creating Tag #{new_version}..."
       tag_repository.create!(new_version.to_s)
+      stderr.puts "Tag #{new_version} Created!"
 
       call_hooks(:after_tag_up, with_attributes: { new_version: new_version })
       call_hooks(:after)
@@ -44,6 +48,10 @@ module Verto
         identifier = pre_release_configured? ? options[:pre_release] : version.pre_release.name
         new_version = new_version.with_pre_release(identifier)
         new_version = new_version.up(:pre_release) if new_version.pre_release.name == version.pre_release.name && new_version == version
+      end
+
+      if options[:release]
+        new_version = new_version.release_version
       end
 
       new_version
@@ -85,8 +93,7 @@ module Verto
           }
         }
         TEXT
-      ) unless options[:major] || options[:minor] || options[:patch] || options[:pre_release]
-
+      ) unless options[:major] || options[:minor] || options[:patch] || options[:pre_release] || options[:release]
     end
 
     def load_filter

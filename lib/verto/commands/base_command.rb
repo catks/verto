@@ -14,6 +14,10 @@ module Verto
       Verto.config.command_options.merge!(super)
     end
 
+    def stderr
+      Verto.stderr
+    end
+
     def call_hooks(moments = [], with_attributes: {})
       moments_to_call = ([] << moments).flatten
 
