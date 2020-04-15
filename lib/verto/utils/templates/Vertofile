@@ -1,4 +1,10 @@
-verto_version '0.4.0'
+verto_version '0.5.0'
+
+config {
+ # version.prefix = 'v' # Adds a version_prefix
+ # pre_release.initial_number = 0 # Configures pre_release initial number, defaults to 1
+ # project.path = "#{project_path}" # Configures a custom project path
+}
 
 context(branch('master')) {
   before_command('tag_up') {

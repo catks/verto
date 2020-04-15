@@ -95,6 +95,10 @@ You can create a new Vertofile with `verto init` or following the next example:
 
 verto_version '0.5.0'
 
+config {
+ # version.prefix = 'v' # Adds a version_prefix
+}
+
 context(branch('master')) {
   before_command('tag_up') {
     git!('origin master')
