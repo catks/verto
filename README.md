@@ -32,20 +32,20 @@ You don't need to install verto in your machine, you can run verto via the docke
 To use verto in the same way that you use any other cli, you can set an alias in your `.bashrc`, `.zshrc`, etc:
 
 ```shell
-alias verto='docker run -v $(pwd):/usr/src/project -it catks/verto:0.5.0'
+alias verto='docker run -v $(pwd):/usr/src/project -it catks/verto:0.6.0'
 ```
 
 If you want you can share your git configuration and known_hosts with:
 
 ```shell
-alias verto='docker run -v ~/.gitconfig:/etc/gitconfig -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -it catks/verto:0.5.0'
+alias verto='docker run -v ~/.gitconfig:/etc/gitconfig -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -it catks/verto:0.6.0'
 
 ```
 
 You can also use your ssh keys with verto container (for git push):
 
 ```shell
-alias verto='docker run -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -v $HOME/.ssh/id_rsa:/root/.ssh/id_rsa -e SSH_PRIVATE_KEY=/root/.ssh/id_rsa -it catks/verto:0.5.0'
+alias verto='docker run -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -v $HOME/.ssh/id_rsa:/root/.ssh/id_rsa -e SSH_PRIVATE_KEY=/root/.ssh/id_rsa -it catks/verto:0.6.0'
 
 ```
 
@@ -53,7 +53,7 @@ Or share the git config, known_hosts and ssh_keys:
 
 
 ```shell
-alias verto='docker run -v ~/.gitconfig:/etc/gitconfig -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -v $HOME/.ssh/id_rsa:/root/.ssh/id_rsa -e SSH_PRIVATE_KEY=/root/.ssh/id_rsa -it catks/verto:0.5.0'
+alias verto='docker run -v ~/.gitconfig:/etc/gitconfig -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -v $HOME/.ssh/id_rsa:/root/.ssh/id_rsa -e SSH_PRIVATE_KEY=/root/.ssh/id_rsa -it catks/verto:0.6.0'
 
 ```
 
@@ -93,7 +93,7 @@ You can create a new Vertofile with `verto init` or following the next example:
 ```ruby
 # Vertofile
 
-verto_version '0.5.0'
+verto_version '0.6.0'
 
 config {
  # version.prefix = 'v' # Adds a version_prefix
