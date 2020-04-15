@@ -8,6 +8,7 @@ module Verto
     option :pre_release, type: :string
     option :filter, type: :string
     option :release, type: :boolean, default: false
+    option :version_prefix, type: :string, default: nil
 
     def up
       call_hooks(%i[before before_tag_up], with_attributes: { command_options: options} )
@@ -26,9 +27,9 @@ module Verto
 
       call_hooks(:before_tag_creation, with_attributes: { new_version: new_version } )
 
-      stderr.puts "Creating Tag #{new_version}..."
-      tag_repository.create!(new_version.to_s)
-      stderr.puts "Tag #{new_version} Created!"
+      stderr.puts "Creating Tag #{version_prefix}#{new_version}..."
+      tag_repository.create!("#{version_prefix}#{new_version}")
+      stderr.puts "Tag #{version_prefix}#{new_version} Created!"
 
       call_hooks(:after_tag_up, with_attributes: { new_version: new_version })
       call_hooks(:after)
@@ -65,7 +66,7 @@ module Verto
       command_error!(
         <<~TEXT
           Project doesn't have a previous tag version, create a new tag with git.
-          eg: `git tag 0.1.0`
+          eg: `git tag #{version_prefix}0.1.0`
         TEXT
       ) unless latest_tag
     end
@@ -98,6 +99,10 @@ module Verto
 
     def load_filter
       TagFilter.for(options[:filter]) || Regexp.new(options[:filter].to_s)
+    end
+
+    def version_prefix
+      options[:version_prefix] || Verto.config.version.prefix
     end
   end
 end

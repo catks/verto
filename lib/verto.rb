@@ -24,6 +24,10 @@ module Verto
     setting :stderr_to, nil
   end
 
+  setting :version do
+    setting :prefix, ''
+  end
+
   setting :hooks, []
   setting :command_options, CommandOptions.new
 

@@ -27,6 +27,7 @@ RSpec.describe Verto::MainCommand do
     repo.clear!
     # TODO: Create a config reload! to get defaults
     Verto.config.command_options = Verto::CommandOptions.new
+    Verto.config.version.prefix = ''
     Verto.config.hooks = []
   end
 
@@ -147,7 +148,6 @@ RSpec.describe Verto::MainCommand do
           end
         end
 
-
         context 'with --patch option' do
           let(:options) { ['--patch'] }
           let(:last_tag) { '1.0.19' }
@@ -199,6 +199,45 @@ RSpec.describe Verto::MainCommand do
 
               result = repo.run('git log --decorate HEAD')
               expect(result).to include('tag: 1.0.20-rc.1')
+            end
+          end
+
+          context 'when Vertofile has a prefix configured' do
+            let(:vertofile) do
+              <<~VERTOFILE
+                  config { version.prefix = 'v' }
+              VERTOFILE
+            end
+
+            let(:last_tag) { 'v1.0.19' }
+
+            it 'create a tag with a prefix and with the patch number increased' do
+              up
+
+              result = repo.run('git log --decorate HEAD')
+              expect(result).to include('tag: v1.0.20')
+            end
+
+            context 'but have a version_prefix option' do
+              let(:options) { ['--patch', '--version_prefix=V'] }
+
+              it 'create a tag with the prefix in tag up and with the patch number increased' do
+                up
+
+                result = repo.run('git log --decorate HEAD')
+                expect(result).to include('tag: V1.0.20')
+              end
+            end
+          end
+
+          context 'with a version_prefix option' do
+            let(:options) { ['--patch', '--version_prefix=v'] }
+
+            it 'create a tag with the prefix in tag up and with the patch number increased' do
+              up
+
+              result = repo.run('git log --decorate HEAD')
+              expect(result).to include('tag: v1.0.20')
             end
           end
 

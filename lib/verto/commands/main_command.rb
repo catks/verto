@@ -14,7 +14,7 @@ module Verto
       Template.render('Vertofile', to: path)
     end
 
-    desc "version", "Show Verto version"
+    desc "version", "Shows Verto version"
 
     def version
       Verto.stdout.puts Verto::VERSION
