@@ -1,3 +1,6 @@
+## 0.6.1 - 15/04/2020
+ * [FIX] Fix Vertofile to add Gemfile.lock before release
+
 ## 0.6.0 - 14/04/2020
  * [FEATURE] Adds Version Prefix
 
