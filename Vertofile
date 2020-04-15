@@ -38,6 +38,7 @@ context(branch('master')) {
     file('lib/verto/utils/templates/Vertofile').replace(latest_version.to_s, new_version.to_s)
     git!('add lib/verto/utils/templates/Vertofile')
 
+    sh!('bundle install')
     sh!('rake install')
     git!('add Gemfile.lock')
 
@@ -45,6 +46,7 @@ context(branch('master')) {
   }
 
   after_command('tag_up') {
+    exit
     git!('push --tags')
     git!('push origin master')
     sh!('rake release')
