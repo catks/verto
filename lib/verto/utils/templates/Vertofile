@@ -8,19 +8,17 @@ config {
 
 context(branch('master')) {
   before_command('tag_up') {
-    git!('origin master')
+    git!('pull origin master')
     command_options.add(filter: 'release_only')
   }
 
   on('before_tag_creation') {
 
     version_changes = ""
-    # Uncomment to get Bitbucket Merged PRs Titles as changes to add in CHANGELOG.
-    # bitbucket_changes = sh(
+    # Uncomment to get Merged PRs Titles as changes to add in CHANGELOG.
+    # version_changes = sh(
     #  %q#git log --oneline --decorate  | grep -B 100 -m 1 "tag:" | grep "pull request" | awk '{print $1}' | xargs git show --format='%b' | grep -v Approved | grep -v "^$" | grep -E "^[[:space:]]*\[.*\]" | sed 's/^[[:space:]]*\(.*\)/ * \1/'#, output: false
     # ).output
-    # version_changes = bitbucket_changes
-
 
     puts "---------------------------"
     version_changes = "## #{new_version} - #{Time.now.strftime('%d/%m/%Y')}\n#{version_changes}\n"

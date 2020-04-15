@@ -107,12 +107,9 @@ context(branch('master')) {
 
   on('before_tag_creation') {
 
-    version_changes = ""
-    bitbucket_changes = sh(
+    version_changes = sh(
       %q#git log --oneline --decorate  | grep -B 100 -m 1 "tag:" | grep "pull request" | awk '{print $1}' | xargs git show --format='%b' | grep -v Approved | grep -v "^$" | grep -E "^[[:space:]]*\[.*\]" | sed 's/^[[:space:]]*\(.*\)/ * \1/'#, output: false
     ).output
-    version_changes = bitbucket_changes
-
 
     puts "---------------------------"
     version_changes = "## #{new_version} - #{Time.now.strftime('%d/%m/%Y')}\n#{version_changes}\n"

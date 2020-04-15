@@ -1,0 +1,53 @@
+verto_version '0.5.0'
+
+config {
+ version.prefix = 'v' # Adds a version_prefix
+}
+
+context(branch('master')) {
+  before_command('tag_up') {
+    git!('pull origin master')
+    command_options.add(filter: 'release_only')
+  }
+
+  on('before_tag_creation') {
+    version_changes = ""
+     bitbucket_changes = sh(
+      %q#git log --oneline --decorate  | grep -B 100 -m 1 "tag:" | grep "pull request" | awk '{print $1}' | xargs git show --format='%b' | grep -v Approved | grep -v "^$" | grep -E "^[[:space:]]*\[.*\]" | sed 's/^[[:space:]]*\(.*\)/ * \1/'#, output: false
+     ).output
+     version_changes = bitbucket_changes
+
+    puts "---------------------------"
+    version_changes = "## #{new_version} - #{Time.now.strftime('%d/%m/%Y')}\n#{version_changes}\n"
+    exit unless confirm("Create new Realease?\n" \
+      "---------------------------\n" \
+      "#{version_changes}" \
+      "---------------------------\n"
+    )
+
+    # CHANGELOG
+    file('CHANGELOG.md').prepend(version_changes)
+    git!('add CHANGELOG.md')
+
+    file('lib/verto/version.rb').replace(latest_version.to_s, new_version.to_s)
+    git!('add lib/verto/version.rb')
+
+    file('README.md').replace_all(latest_version.to_s, new_version.to_s)
+    git!('add README.md')
+
+    file('lib/verto/utils/templates/Vertofile').replace(latest_version.to_s, new_version.to_s)
+    git!('add lib/verto/utils/templates/Vertofile')
+
+    sh!('rake install')
+    git!('add Gemfile.lock')
+
+    git!('commit -m "Bumps Version"')
+  }
+
+  after_command('tag_up') {
+    git!('push --tags')
+    git!('push origin master')
+    sh!('rake release')
+  }
+}
+
