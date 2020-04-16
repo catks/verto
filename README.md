@@ -42,15 +42,7 @@ alias verto='docker run -v ~/.gitconfig:/etc/gitconfig -v $(pwd):/usr/src/projec
 
 ```
 
-You can also use your ssh keys with verto container (for git push):
-
-```shell
-alias verto='docker run -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -v $HOME/.ssh/id_rsa:/root/.ssh/id_rsa -e SSH_PRIVATE_KEY=/root/.ssh/id_rsa -it catks/verto:0.6.1'
-
-```
-
-Or share the git config, known_hosts and ssh_keys:
-
+You can also use your ssh keys, know_hosts and git config with verto container (for git push):
 
 ```shell
 alias verto='docker run -v ~/.gitconfig:/etc/gitconfig -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -v $HOME/.ssh/id_rsa:/root/.ssh/id_rsa -e SSH_PRIVATE_KEY=/root/.ssh/id_rsa -it catks/verto:0.6.1'
@@ -171,7 +163,7 @@ context(!branch('master', 'staging')) {
 
   1. Complete README.md description
   2. Add a configuration to enable, disable or specify the number of tags that a single commit can have(eg: only one release and one pre-release)
-  5. Adds more specs and test coverage in CI
+  3. Adds more specs and test coverage in CI
 
 ## Contributing
 
