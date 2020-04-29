@@ -55,15 +55,11 @@ module Verto
       end
 
       def sh!(command, output: :from_config)
-        raise Verto::ExitError unless sh(command, output: output).success?
+        raise Verto::ExitError, command unless sh(command, output: output).success?
       end
 
       def command_options
         Verto.config.command_options
-      end
-
-      def on(moment, &block)
-        Verto.config.hooks << Hook.new(moment: moment, &block)
       end
 
       def before(&block)
@@ -74,12 +70,34 @@ module Verto
         Verto.config.hooks << Hook.new(moment: :after, &block)
       end
 
+      def on(moment, &block)
+        deprecate('on', use: 'before_tag_creation')
+
+        Verto.config.hooks << Hook.new(moment: moment, &block)
+      end
+
       def before_command(command_name, &block)
+        deprecate('before_command', use: 'before_command_tag_up')
+
         Verto.config.hooks << Hook.new(moment: "before_#{command_name}", &block)
       end
 
       def after_command(command_name, &block)
+        deprecate('after_command', use: 'after_command_tag_up')
+
         Verto.config.hooks << Hook.new(moment: "after_#{command_name}", &block)
+      end
+
+      def before_command_tag_up(&block)
+        Verto.config.hooks << Hook.new(moment: 'before_tag_up', &block)
+      end
+
+      def after_command_tag_up(&block)
+        Verto.config.hooks << Hook.new(moment: 'after_tag_up', &block)
+      end
+
+      def before_tag_creation(&block)
+        Verto.config.hooks << Hook.new(moment: 'before_tag_creation', &block)
       end
 
       def file(filepath)
@@ -134,6 +152,10 @@ module Verto
         return SemanticVersion.new('0.0.0') unless tag_version
 
         SemanticVersion.new(tag_version)
+      end
+
+      def deprecate(current, use:)
+        warn "[DEPRECATED] `#{current}` is deprecated and wil be removed in a future release, use `#{use}` instead"
       end
     end
   end

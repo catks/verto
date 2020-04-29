@@ -11,6 +11,8 @@ module Verto
     option :version_prefix, type: :string, default: nil
 
     def up
+      load_config_hooks!
+
       call_hooks(%i[before before_tag_up], with_attributes: { command_options: options} )
 
       validate_version_option_presence!
@@ -79,7 +81,7 @@ module Verto
         add filters (eg: verto tag up --pre-release --filter=pre_release_only)
         or disable tag validation in Vertofile with config.version.validations.new_version_must_be_bigger = false
         TEXT
-      ) if new_version < latest_version
+      ) if new_version < latest_version && Verto.config.version.validations.new_version_must_be_bigger
     end
 
     def validate_version_option_presence!
@@ -103,6 +105,11 @@ module Verto
 
     def version_prefix
       options[:version_prefix] || Verto.config.version.prefix
+    end
+
+    def load_config_hooks!
+      Verto.config.hooks.prepend Verto::DSL::BuiltInHooks::GitPullCurrentBranch if Verto.config.git.pull_before_tag_creation
+      Verto.config.hooks << Verto::DSL::BuiltInHooks::GitPushCurrentBranch if Verto.config.git.push_after_tag_creation
     end
   end
 end

@@ -26,6 +26,14 @@ module Verto
 
   setting :version do
     setting :prefix, ''
+    setting :validations do
+      setting :new_version_must_be_bigger, true
+    end
+  end
+
+  setting :git do
+    setting :pull_before_tag_creation, false
+    setting :push_after_tag_creation, false
   end
 
   setting :hooks, []
@@ -88,6 +96,7 @@ require "verto/dsl/syntax"
 require "verto/dsl/interpreter"
 require "verto/dsl/hook"
 require "verto/dsl/file"
+require "verto/dsl/built_in_hooks"
 require "verto/commands/base_command"
 require "verto/commands/tag_command"
 require "verto/commands/main_command"
