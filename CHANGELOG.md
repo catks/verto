@@ -1,3 +1,6 @@
+## 0.7.0 - 29/04/2020
+ * [FEATURE Built In Git Hooks]
+
 ## 0.6.1 - 15/04/2020
  * [FIX] Fix Vertofile to add Gemfile.lock before release
 

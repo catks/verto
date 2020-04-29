@@ -32,20 +32,20 @@ You don't need to install verto in your machine, you can run verto via the docke
 To use verto in the same way that you use any other cli, you can set an alias in your `.bashrc`, `.zshrc`, etc:
 
 ```shell
-alias verto='docker run -v $(pwd):/usr/src/project -it catks/verto:0.6.1'
+alias verto='docker run -v $(pwd):/usr/src/project -it catks/verto:0.7.0'
 ```
 
 If you want you can share your git configuration and known_hosts with:
 
 ```shell
-alias verto='docker run -v ~/.gitconfig:/etc/gitconfig -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -it catks/verto:0.6.1'
+alias verto='docker run -v ~/.gitconfig:/etc/gitconfig -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -it catks/verto:0.7.0'
 
 ```
 
 You can also use your ssh keys, know_hosts and git config with verto container (for git push):
 
 ```shell
-alias verto='docker run -v ~/.gitconfig:/etc/gitconfig -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -v $HOME/.ssh/id_rsa:/root/.ssh/id_rsa -e SSH_PRIVATE_KEY=/root/.ssh/id_rsa -it catks/verto:0.6.1'
+alias verto='docker run -v ~/.gitconfig:/etc/gitconfig -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -v $HOME/.ssh/id_rsa:/root/.ssh/id_rsa -e SSH_PRIVATE_KEY=/root/.ssh/id_rsa -it catks/verto:0.7.0'
 
 ```
 
@@ -85,20 +85,21 @@ You can create a new Vertofile with `verto init` or following the next example:
 ```ruby
 # Vertofile
 
-verto_version '0.6.1'
+verto_version '0.7.0'
 
 config {
  # version.prefix = 'v' # Adds a version_prefix
+ git.pull_before_tag_creation = true # Pull Changes before tag creation
+ git.push_after_tag_creation = true # Push changes after tag creation
 }
 
 context(branch('master')) {
-  before_command('tag_up') {
+  before_command_tag_up {
     git!('origin master')
     command_options.add(filter: 'release_only')
   }
 
-  on('before_tag_creation') {
-
+  before_tag_creation {
     version_changes = sh(
       %q#git log --oneline --decorate  | grep -B 100 -m 1 "tag:" | grep "pull request" | awk '{print $1}' | xargs git show --format='%b' | grep -v Approved | grep -v "^$" | grep -E "^[[:space:]]*\[.*\]" | sed 's/^[[:space:]]*\(.*\)/ * \1/'#, output: false
     ).output
@@ -122,29 +123,25 @@ context(branch('master')) {
     git('commit -m "Updates CHANGELOG"')
   }
 
-  after_command('tag_up') {
-    git('push --tags')
-    git('push origin master')
-  }
+  # After Hooks
+  # after_command_tag_up {
+  #  git('push --tags')
+  #  git('push origin master')
+  # }
 }
 
  context(branch('staging')) {
-  before_command('tag_up') {
+  before_command_tag_up {
     git!('pull origin staging')
     command_options.add(pre_release: 'rc')
   }
 
-  on('before_tag_creation') {
+  before_tag_creation {
     # file('package.json').replace(/"(\d+)\.(\d+)\.(\d+)(-?.*)"/, %Q{"#{new_version}"})
     # git('add package.json')
 
     git('commit -m "Release QA"')
     git('commit --allow-empty -m "Staging Release"')
-  }
-
-  after_command('tag_up') {
-    git('push --tags')
-    git('push origin staging')
   }
 }
 
