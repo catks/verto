@@ -4,16 +4,17 @@ config {
  # version.prefix = 'v' # Adds a version_prefix
  # pre_release.initial_number = 0 # Configures pre_release initial number, defaults to 1
  # project.path = "#{project_path}" # Configures a custom project path
+ # git.pull_before_tag_creation = true # Pull Changes before tag creation
+ # git.push_after_tag_creation = true # Push changes after tag creation
 }
 
 context(branch('master')) {
-  before_command('tag_up') {
+  before_command_tag_up {
     git!('pull origin master')
     command_options.add(filter: 'release_only')
   }
 
-  on('before_tag_creation') {
-
+  before_tag_creation{
     version_changes = ""
     # Uncomment to get Merged PRs Titles as changes to add in CHANGELOG.
     # version_changes = sh(
@@ -39,7 +40,7 @@ context(branch('master')) {
     git('commit -m "Updates CHANGELOG"')
   }
 
-  after_command('tag_up') {
+  after_command_tag_up {
     git('push --tags')
     git('push origin master')
   }
@@ -47,18 +48,18 @@ context(branch('master')) {
 
 # Uncomment to get a specific pre_release proccess, like a staging or qa branch
 # context(branch('staging')) {
-#  before_command('tag_up') {
+#  before_command_tag_up {
 #    git!('pull origin staging')
 #    command_options.add(pre_release: 'rc')
 #  }
 #
-#  on('before_tag_creation') {
+#  before_tag_creation {
 #    file('package.json').replace(/"(\d+)\.(\d+)\.(\d+)(-?.*)"/, %Q{"#{new_version}"}) # Atualiza versão do package.json
 #    git('add package.json')
 #    git('commit --allow-empty -m "Staging Release"')
 #  }
 
-#  after_command('tag_up') {
+#  after_command_tag_up {
 #    git('push --tags')
 #    git('push origin staging')
 #  }

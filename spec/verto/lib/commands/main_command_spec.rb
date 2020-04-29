@@ -19,6 +19,7 @@ RSpec.describe Verto::MainCommand do
       ex.run
     rescue SystemExit => e
       puts e
+
       raise "Command exits in error #{e.message}"
     end
   end
@@ -29,6 +30,9 @@ RSpec.describe Verto::MainCommand do
     Verto.config.command_options = Verto::CommandOptions.new
     Verto.config.version.prefix = ''
     Verto.config.hooks = []
+    Verto.config.version.validations.new_version_must_be_bigger = true
+    Verto.config.git.pull_before_tag_creation = false
+    Verto.config.git.push_after_tag_creation = false
   end
 
   describe 'init' do
@@ -75,8 +79,11 @@ RSpec.describe Verto::MainCommand do
 
       let(:options) { [] }
       let(:vertofile) { nil }
+      let(:command_executor) { Verto::SystemCommandExecutor.new }
 
       before do
+        allow(Verto::SystemCommandExecutor).to receive(:new).and_return(command_executor)
+
         Verto::DSL::Interpreter.new.evaluate(vertofile) if vertofile
       end
 
@@ -106,7 +113,6 @@ RSpec.describe Verto::MainCommand do
           end
         end
       end
-
 
       context 'with a lastest tag' do
         before do
@@ -227,6 +233,45 @@ RSpec.describe Verto::MainCommand do
                 result = repo.run('git log --decorate HEAD')
                 expect(result).to include('tag: V1.0.20')
               end
+            end
+          end
+
+          context 'when Vertofile has git config options' do
+            let(:vertofile) do
+              <<~VERTOFILE
+                config {
+                  git.pull_before_tag_creation = true
+                  git.push_after_tag_creation = true
+                }
+              VERTOFILE
+            end
+
+            let(:last_tag) { '10.0.9' }
+
+            before do
+              allow(Verto::DSL::BuiltInHooks::GitPullCurrentBranch).to receive(:call)
+              allow(Verto::DSL::BuiltInHooks::GitPushCurrentBranch).to receive(:call)
+            end
+
+            it 'create a tag' do
+              up
+
+              result = repo.run('git log --decorate HEAD')
+              expect(result).to include('tag: 10.0.10')
+            end
+
+            it 'pulls changes before creating a tag' do
+              up
+
+              expect(Verto.config.hooks.select { |h| h.moment == :before }.first).to eq(Verto::DSL::BuiltInHooks::GitPullCurrentBranch)
+              expect(Verto::DSL::BuiltInHooks::GitPullCurrentBranch).to have_received(:call)
+            end
+
+            it 'push changes after creating a tag' do
+              up
+
+              expect(Verto.config.hooks.select { |h| h.moment == :after }.first).to eq(Verto::DSL::BuiltInHooks::GitPushCurrentBranch)
+              expect(Verto::DSL::BuiltInHooks::GitPushCurrentBranch).to have_received(:call)
             end
           end
 
@@ -463,6 +508,23 @@ RSpec.describe Verto::MainCommand do
                       or disable tag validation in Vertofile with config.version.validations.new_version_must_be_bigger = false
                     TEXT
                   )
+                end
+              end
+
+              context 'but have a config disabling version validation' do
+                let(:vertofile) do
+                  <<~VERTOFILE
+                    config {
+                      version.validations.new_version_must_be_bigger = false
+                    }
+                  VERTOFILE
+                end
+
+                it 'create a tag with the pre_release number increased' do
+                  up
+
+                  result = repo.run('git log --decorate HEAD')
+                  expect(result).to include('tag: 1.9.19-rc.1')
                 end
               end
             end

@@ -20,7 +20,7 @@ RSpec.describe Verto::DSL do
 
           sh('echo "On master Branch" > branch')
 
-          on('before_tag_creation') {
+          before_tag_creation {
             file('CHANGELOG.md').prepend(\"## \#{new_version} - \#{Time.now.strftime('%d/%m/%Y')}")
             git!('add CHANGELOG.md')
             git('commit -m "Updates CHANGELOG"')
@@ -35,13 +35,19 @@ RSpec.describe Verto::DSL do
           sh('echo "On qa Branch" > branch')
           git('status')
 
-          before_command('tag_up') {
+          before_command_tag_up {
             command_options.add(pre_release: 'rc')
 
             has_a_up_version_number = !command_options.keys.any? { |key| [:major, :minor, :patch].include?(key) }
 
             command_options.add(patch: true) if latest_pre_release_version < latest_release_version && !has_a_up_version_number
+          }
 
+          on('before_tag_creation') {
+            sh('echo Test!')
+          }
+
+          before_command('tag_up') {
             sh('echo "Before Hook" > before_hook')
           }
 
@@ -51,7 +57,9 @@ RSpec.describe Verto::DSL do
             context(env('DEBUG') == 'true') {
               file('releases.log').append(new_version.to_s)
             }
+          }
 
+          after_command_tag_up {
             file('package.json').replace_all(/\\d+\\.\\d+\\.\\d+/, new_version.to_s)
           }
         }
@@ -67,6 +75,13 @@ RSpec.describe Verto::DSL do
 
         context(branch('wip')) {
           file('love').prepend('what_is')
+        }
+
+        context(branch('auto_git')) {
+          config {
+            git.pull_before_tag_creation = true
+            git.push_after_tag_creation = true
+          }
         }
 
         after {
