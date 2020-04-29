@@ -1,16 +1,17 @@
 verto_version '0.6.1'
 
 config {
- version.prefix = 'v' # Adds a version_prefix
+  version.prefix = 'v' # Adds a version_prefix
+  git.pull_before_tag_creation = true
+  git.push_after_tag_creation = true
 }
 
 context(branch('master')) {
-  before_command('tag_up') {
-    git!('pull origin master')
+  before_command_tag_up {
     command_options.add(filter: 'release_only')
   }
 
-  on('before_tag_creation') {
+  before_tag_creation {
     version_changes = ""
      bitbucket_changes = sh(
       %q#git log --oneline --decorate  | grep -B 100 -m 1 "tag:" | grep "pull request" | awk '{print $1}' | xargs git show --format='%b' | grep -v Approved | grep -v "^$" | grep -E "^[[:space:]]*\[.*\]" | sed 's/^[[:space:]]*\(.*\)/ * \1/'#, output: false
@@ -43,12 +44,6 @@ context(branch('master')) {
     git!('add Gemfile.lock')
 
     git!('commit -m "Bumps Version"')
-  }
-
-  after_command('tag_up') {
-    exit
-    git!('push --tags')
-    git!('push origin master')
   }
 }
 
