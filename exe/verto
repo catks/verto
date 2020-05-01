@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
+Signal.trap("INT") { exit 2 }
 
 require_relative '../lib/verto'
 
 vertofile_path = ENV['VERTOFILE_PATH'] || Pathname.new(Dir.pwd).join('Vertofile').to_s
-
 begin
   Verto::DSL.load_file(vertofile_path) if File.exists?(vertofile_path)
 
