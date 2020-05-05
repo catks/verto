@@ -155,7 +155,7 @@ module Verto
       end
 
       def deprecate(current, use:)
-        warn "[DEPRECATED] `#{current}` is deprecated and wil be removed in a future release, use `#{use}` instead"
+        warn "[DEPRECATED] `#{current}` is deprecated and will be removed in a future release, use `#{use}` instead"
       end
     end
   end
