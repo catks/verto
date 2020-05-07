@@ -95,7 +95,6 @@ config {
 
 context(branch('master')) {
   before_command_tag_up {
-    git!('origin master')
     command_options.add(filter: 'release_only')
   }
 
@@ -120,7 +119,7 @@ context(branch('master')) {
     # file('package.json').replace(/"(\d+)\.(\d+)\.(\d+)(-?.*)"/, %Q{"#{new_version}"})
     # git('add package.json')
 
-    git('commit -m "Updates CHANGELOG"')
+    git!('commit -m "Updates CHANGELOG"')
   }
 
   # After Hooks
@@ -140,8 +139,7 @@ context(branch('master')) {
     # file('package.json').replace(/"(\d+)\.(\d+)\.(\d+)(-?.*)"/, %Q{"#{new_version}"})
     # git('add package.json')
 
-    git('commit -m "Release QA"')
-    git('commit --allow-empty -m "Staging Release"')
+    git!('commit --allow-empty -m "Staging Release"')
   }
 }
 
