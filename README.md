@@ -145,7 +145,7 @@ context(branch('master')) {
 
 # Block tag creation in other branchs
 context(!branch('master', 'staging')) {
-  error "Tags only can be created in master or staging branch"
+  error "Tags can only be created in master or staging branch"
   exit
 }
 ```
