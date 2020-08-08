@@ -42,13 +42,13 @@ module Verto
     include Verto.import['tag_repository']
 
     def up_version(version, options)
-      up_options = options.select { |key,value| value == true }.keys.map(&:to_sym) & [:major, :minor, :patch]
-      up_option = up_options.sort.first
+      up_options = options.select { |_, value| value == true }.keys.map(&:to_sym) & [:major, :minor, :patch]
+      up_option = up_options.min
 
       new_version = version.up(up_option)
 
       if options[:pre_release]
-        identifier = pre_release_configured? ? options[:pre_release] : version.pre_release.name
+        identifier = pre_release_configured? ? options[:pre_release] : version.pre_release.name || default_identifier
         new_version = new_version.with_pre_release(identifier)
         new_version = new_version.up(:pre_release) if new_version.pre_release.name == version.pre_release.name && new_version == version
       end
@@ -77,7 +77,7 @@ module Verto
       command_error!(
         <<~TEXT
         New version(#{new_version}) can't be equal or lower than latest version(#{latest_version})
-        run up --pre-release with --patch, --minor or --major (eg: verto tag up --pre-release --patch),
+        run up --pre-release with --patch, --minor or --major (eg: verto tag up --patch --pre-release=rc),
         add filters (eg: verto tag up --pre-release --filter=pre_release_only)
         or disable tag validation in Vertofile with config.version.validations.new_version_must_be_bigger = false
         TEXT
@@ -110,6 +110,10 @@ module Verto
     def load_config_hooks!
       Verto.config.hooks.prepend Verto::DSL::BuiltInHooks::GitPullCurrentBranch if Verto.config.git.pull_before_tag_creation
       Verto.config.hooks << Verto::DSL::BuiltInHooks::GitPushCurrentBranch if Verto.config.git.push_after_tag_creation
+    end
+
+    def default_identifier
+      Verto.config.pre_release.default_identifier
     end
   end
 end
