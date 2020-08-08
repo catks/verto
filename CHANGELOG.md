@@ -1,3 +1,6 @@
+## 0.9.0 - 08/08/2020
+ * [FEATURE] Custom Default Pre-Release Identifier
+
 ## 0.8.0 - 05/05/2020
  * [PATCH] Handles Ctrl-C / SIGINT in CLI
 
