@@ -3,7 +3,7 @@ require 'stringio'
 RSpec.describe Verto::MainCommand do
   before do
     Verto.config.project.path = Verto.root_path.join('tmp/test_repo/').to_s
-    # TODO: Remove set int he global variables
+    # TODO: Remove set in the global variables
     $stderr = stderr
     $stdout = stdout
     allow(Verto).to receive(:stdout).and_return(stdout)
@@ -332,6 +332,18 @@ RSpec.describe Verto::MainCommand do
                 result = repo.run('git log --decorate HEAD')
                 expect(result).to include('tag: 1.9.20-rc.1)')
               end
+
+              context 'without the identifier' do
+                let(:options) { ['--patch', '--pre_release'] }
+                let(:last_tag) { '1.9.19-rc.1' }
+
+                it 'upgrades only the patch number' do
+                  up
+
+                  result = repo.run('git log --decorate HEAD')
+                  expect(result).to include('tag: 1.9.20-rc.1)')
+                end
+              end
             end
           end
         end
@@ -470,6 +482,36 @@ RSpec.describe Verto::MainCommand do
                 expect(result).to include('tag: 1.9.19-rc.10')
               end
             end
+
+            context 'when the latest tag isnt a pre_release' do
+              let(:last_tag) { '1.9.19' }
+
+              context 'with other incrementer' do
+                let(:options) { ['--patch', '--pre-release'] }
+
+                it 'create a tag with the pre_release number increased and the default identifier' do
+                  up
+
+                  result = repo.run('git log --decorate HEAD')
+                  expect(result).to include('tag: 1.9.20-rc.1')
+                end
+
+                context 'with a custom default identifier' do
+                  let(:vertofile) do
+                    <<~VERTOFILE
+                      config { pre_release.default_identifier = 'alpha' }
+                    VERTOFILE
+                  end
+
+                  it 'create a tag with the pre_release number increased and the default custom identifier' do
+                    up
+
+                    result = repo.run('git log --decorate HEAD')
+                    expect(result).to include('tag: 1.9.20-alpha.1')
+                  end
+                end
+              end
+            end
           end
 
           context 'when specifying the identifier' do
@@ -503,7 +545,7 @@ RSpec.describe Verto::MainCommand do
                   expect(stderr.string).to eq(
                     <<~TEXT
                       New version(1.9.19-rc.1) can't be equal or lower than latest version(#{last_tag})
-                      run up --pre-release with --patch, --minor or --major (eg: verto tag up --pre-release --patch),
+                      run up --pre-release with --patch, --minor or --major (eg: verto tag up --patch --pre-release=rc),
                       add filters (eg: verto tag up --pre-release --filter=pre_release_only)
                       or disable tag validation in Vertofile with config.version.validations.new_version_must_be_bigger = false
                     TEXT

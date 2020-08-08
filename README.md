@@ -89,6 +89,7 @@ verto_version '0.8.0'
 
 config {
  # version.prefix = 'v' # Adds a version_prefix
+ # pre_release.default_identifier = 'alpha' } # Defaults to 'rc'
  git.pull_before_tag_creation = true # Pull Changes before tag creation
  git.push_after_tag_creation = true # Push changes after tag creation
 }

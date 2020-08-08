@@ -13,6 +13,7 @@ module Verto
 
   setting :pre_release do
     setting :initial_number, 1
+    setting :default_identifier, 'rc'
   end
 
   setting :project do
