@@ -1,6 +1,8 @@
 require 'fileutils'
 
 class TestRepo
+  attr_accessor :path
+
   def initialize(path=Verto.root_path.join('tmp/test_repo'))
     FileUtils.mkdir_p(path)
     @path = path
@@ -27,7 +29,7 @@ class TestRepo
   end
 
   def commit!(message)
-    run "git commit -m #{message} --allow-empty"
+    run "git commit -m '#{message}' --allow-empty"
   end
 
   def checkout(branch)

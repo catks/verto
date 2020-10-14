@@ -1,0 +1,8 @@
+djin_version: '0.6.0'
+
+tasks:
+  release:
+    local:
+      run:
+        - verto tag up {{args}}
+        - bundle exec rake release

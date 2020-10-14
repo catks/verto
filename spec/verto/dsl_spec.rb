@@ -9,6 +9,12 @@ RSpec.describe Verto::DSL do
         config {
           pre_release.initial_number = 0
           project.path = "#{project_path}"
+          changelog.format = <<~CHANGELOG
+                               ## {{new_version}} - #{Time.now.strftime('%d/%m/%Y')}
+                                {{#version_changes}}
+                                * {{.}}
+                                {{/version_changes}}
+                              CHANGELOG
         }
 
         before { sh('echo "My Releases" > releases.log') }
@@ -21,7 +27,8 @@ RSpec.describe Verto::DSL do
           sh('echo "On master Branch" > branch')
 
           before_tag_creation {
-            file('CHANGELOG.md').prepend(\"## \#{new_version} - \#{Time.now.strftime('%d/%m/%Y')}")
+            #file('CHANGELOG.md').prepend(\"## \#{new_version} - \#{Time.now.strftime('%d/%m/%Y')}")
+            update_changelog
             git!('add CHANGELOG.md')
             git('commit -m "Updates CHANGELOG"')
           }
@@ -90,7 +97,7 @@ RSpec.describe Verto::DSL do
       VERTO
     end
 
-    let(:verto_version) { Verto::VERSION}
+    let(:verto_version) { Verto::VERSION }
     let(:project_path) { Verto.root_path.join('tmp/test_repo') }
     let(:vertofile_path) { project_path.join('Vertofile') }
     let(:package_json_path) { project_path.join('package.json') }
@@ -106,6 +113,7 @@ RSpec.describe Verto::DSL do
       IO.write(package_json_path, '{ "version": "0.0.0" }')
       Verto.config.hooks = [] # Reset Hooks
       command_executor.run('touch CHANGELOG.md')
+      allow(CliHelpers).to receive(:confirm).and_return(true)
       described_class.reset_interpreter!
     end
 
@@ -174,7 +182,7 @@ RSpec.describe Verto::DSL do
 
         expect {
           run_command(new_version: '1.2.3', after_with_attributes: { new_version: '1.2.3' }) { true }
-        }.to change { file_content('CHANGELOG.md').chomp }.from('').to("## 1.2.3 - #{Time.now.strftime('%d/%m/%Y')}")
+        }.to change { file_content('CHANGELOG.md') }.from('').to("## 1.2.3 - #{Time.now.strftime('%d/%m/%Y')}\n\n")
 
         output = command_executor.run('git log -n 1 HEAD').output
         expect(output).to include('Updates CHANGELOG')

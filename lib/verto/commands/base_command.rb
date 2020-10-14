@@ -24,7 +24,10 @@ module Verto
       moments_to_call.each do |moment|
         Verto.config.hooks
           .select { |hook| hook.moment == moment.to_sym }
-          .each { |hook| hook.call(with_attributes: with_attributes) }
+          .each do |hook|
+            Verto.current_moment = hook.moment
+            hook.call(with_attributes: with_attributes)
+          end
       end
     end
   end

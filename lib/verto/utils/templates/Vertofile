@@ -6,43 +6,41 @@ config {
  # project.path = "#{project_path}" # Configures a custom project path
  # git.pull_before_tag_creation = true # Pull Changes before tag creation
  # git.push_after_tag_creation = true # Push changes after tag creation
+
+ ## CHANGELOG FORMAT
+ ## Verto uses Mustache template rendering to render changelog updates, the default value is:
+ ##
+ ##   ## {{new_version}} - #{Time.now.strftime('%d/%m/%Y')}
+ ##       {{#version_changes}}
+ ##       * {{.}}
+ ##       {{/version_changes}}
+ ##
+ ## A custom format can be specified, eg:
+ # changelog.format =  <<~CHANGELOG
+ #                       ## {{new_version}}
+ #                        {{#version_changes}}
+ #                        * {{.}}
+ #                        {{/version_changes}}
+ #                      CHANGELOG}
 }
 
 context(branch('master')) {
   before_command_tag_up {
-    git!('pull origin master')
     command_options.add(filter: 'release_only')
   }
 
   before_tag_creation{
-    version_changes = ""
-    # Uncomment to get Merged PRs Titles as changes to add in CHANGELOG.
-    # version_changes = sh(
-    #  %q#git log --oneline --decorate  | grep -B 100 -m 1 "tag:" | grep "pull request" | awk '{print $1}' | xargs git show --format='%b' | grep -v Approved | grep -v "^$" | grep -E "^[[:space:]]*\[.*\]" | sed 's/^[[:space:]]*\(.*\)/ * \1/'#, output: false
-    # ).output
-
-    puts "---------------------------"
-    version_changes = "## #{new_version} - #{Time.now.strftime('%d/%m/%Y')}\n#{version_changes}\n"
-    exit unless confirm("Create new Realease?\n" \
-      "---------------------------\n" \
-      "#{version_changes}" \
-      "---------------------------\n"
-    )
-
-    # CHANGELOG
-    file('CHANGELOG.md').prepend(version_changes)
-    git('add CHANGELOG.md')
+    # Uncomment to update CHANGELOG file
+    # update_changelog(with: :merged_pull_requests_with_bracketed_labels,
+    #                  confirmation: true,
+    #                  filename: 'CHANGELOG.md')
+    # git('add CHANGELOG.md')
 
     # Uncomment to update the version in other files, like package.json
     # file('package.json').replace(/"(\d+)\.(\d+)\.(\d+)(-?.*)"/, %Q{"#{new_version}"})
     # git('add package.json')
 
     git('commit -m "Updates CHANGELOG"')
-  }
-
-  after_command_tag_up {
-    git('push --tags')
-    git('push origin master')
   }
 }
 
@@ -60,8 +58,7 @@ context(branch('master')) {
 #  }
 
 #  after_command_tag_up {
-#    git('push --tags')
-#    git('push origin staging')
+#    sh('some command')
 #  }
 #}
 
