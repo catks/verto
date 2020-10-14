@@ -100,6 +100,18 @@ module Verto
         Verto.config.hooks << Hook.new(moment: 'before_tag_creation', &block)
       end
 
+      def update_changelog(with: :merged_pull_requests_with_bracketed_labels, confirmation: true, filename: 'CHANGELOG.md')
+        permitted_moments = %w[before_tag_creation after_tag_up]
+        unless permitted_moments.include? Verto.current_moment.to_s
+          raise ExitError, 'update_changelog is only supported in before_tag_creation or after_command_tag_up'
+        end
+
+        UpdateChangelog.new.call(with: with,
+                                 new_version: new_version,
+                                 confirmation: confirmation,
+                                 filename: filename)
+      end
+
       def file(filepath)
         DSL::File.new(filepath)
       end
@@ -108,8 +120,9 @@ module Verto
         ENV[environment_name]
       end
 
+      # TODO: Use delegator
       def confirm(text)
-        shell_basic.yes?("#{text} (y/n)")
+        CliHelpers.confirm(text)
       end
 
       def error(text)
@@ -128,14 +141,10 @@ module Verto
         @executors ||= {
           from_config: Verto::SystemCommandExecutor.new,
           true => Verto::SystemCommandExecutor.new(stdout: $stdout, stderr: $stderr),
-          false => Verto::SystemCommandExecutor.new(stdout: nil, stderr: nil),
+          false => Verto::SystemCommandExecutor.new(stdout: nil, stderr: nil)
         }
 
         @executors[output]
-      end
-
-      def shell_basic
-        @shell_basic ||= Thor::Shell::Basic.new
       end
 
       def stderr

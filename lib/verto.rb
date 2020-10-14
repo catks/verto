@@ -3,6 +3,7 @@ require "dry-container"
 require "dry-configurable"
 require "dry-auto_inject"
 require "vseries"
+require "mustache"
 require "pathname"
 
 require "verto/version"
@@ -37,6 +38,16 @@ module Verto
     setting :push_after_tag_creation, false
   end
 
+  setting :changelog do
+    setting :format,
+            <<~CHANGELOG
+              ## {{new_version}} - #{Time.now.strftime('%d/%m/%Y')}
+               {{#version_changes}}
+               * {{.}}
+               {{/version_changes}}
+            CHANGELOG
+  end
+
   setting :hooks, []
   setting :command_options, CommandOptions.new
 
@@ -55,6 +66,7 @@ module Verto
     @container ||= Dry::Container.new.tap do |container|
       container.register('system_command_executor') { SystemCommandExecutor.new }
       container.register('system_command_executor_without_output') { SystemCommandExecutor.new(stdout: nil, stderr: nil) }
+      container.register('cli_helpers') { CliHelpers }
 
       container.register('tag_repository') { TagRepository.new }
 
@@ -72,6 +84,10 @@ module Verto
       container.namespace('project') do
         register('path') { Verto.config.project.path }
       end
+
+      container.namespace('changelog') do
+        register('format') { Verto.config.changelog.format }
+      end
     end
   end
 
@@ -86,17 +102,28 @@ module Verto
   def self.stderr
     Verto.container.resolve('stderr')
   end
+
+  def self.current_moment
+    @current_moment
+  end
+
+  def self.current_moment=(moment)
+    @current_moment = moment
+  end
 end
 
 require "verto/utils/semantic_version.rb"
 require "verto/utils/system_command_executor"
 require "verto/utils/tag_filter"
 require "verto/utils/template"
+require "verto/utils/cli_helpers"
+require "verto/utils/strict_hash"
 require "verto/dsl"
 require "verto/dsl/syntax"
 require "verto/dsl/interpreter"
 require "verto/dsl/hook"
 require "verto/dsl/file"
+require "verto/dsl/update_changelog"
 require "verto/dsl/built_in_hooks"
 require "verto/commands/base_command"
 require "verto/commands/tag_command"

@@ -1,4 +1,4 @@
-verto_version '0.7.0'
+verto_version '0.9.0'
 
 config {
   version.prefix = 'v' # Adds a version_prefix
@@ -12,22 +12,7 @@ context(branch('master')) {
   }
 
   before_tag_creation {
-    version_changes = ""
-     bitbucket_changes = sh(
-      %q#git log --oneline --decorate  | grep -B 100 -m 1 "tag:" | grep "pull request" | awk '{print $1}' | xargs git show --format='%b' | grep -v Approved | grep -v "^$" | grep -E "^[[:space:]]*\[.*\]" | sed 's/^[[:space:]]*\(.*\)/ * \1/'#, output: false
-     ).output
-     version_changes = bitbucket_changes
-
-    puts "---------------------------"
-    version_changes = "## #{new_version} - #{Time.now.strftime('%d/%m/%Y')}\n#{version_changes}\n"
-    exit unless confirm("Create new Realease?\n" \
-      "---------------------------\n" \
-      "#{version_changes}" \
-      "---------------------------\n"
-    )
-
-    # CHANGELOG
-    file('CHANGELOG.md').prepend(version_changes)
+    update_changelog
     git!('add CHANGELOG.md')
 
     file('lib/verto/version.rb').replace(latest_version.to_s, new_version.to_s)
@@ -37,6 +22,8 @@ context(branch('master')) {
     git!('add README.md')
 
     file('lib/verto/utils/templates/Vertofile').replace(latest_version.to_s, new_version.to_s)
+    file('Vertofile').replace(latest_version.to_s, new_version.to_s)
+
     git!('add lib/verto/utils/templates/Vertofile')
 
     sh!('bundle install')

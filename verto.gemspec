@@ -31,6 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency             "dry-container", "~> 0.7"
   spec.add_dependency             "dry-auto_inject", "~> 0.7"
   spec.add_dependency             "vseries", "~> 0.2"
+  spec.add_dependency             "mustache", "~> 1.1.1"
 
   spec.add_development_dependency "byebug"
   spec.add_development_dependency "bundler", "~> 2.0"

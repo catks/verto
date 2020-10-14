@@ -92,6 +92,22 @@ config {
  # pre_release.default_identifier = 'alpha' } # Defaults to 'rc'
  git.pull_before_tag_creation = true # Pull Changes before tag creation
  git.push_after_tag_creation = true # Push changes after tag creation
+
+ ## CHANGELOG FORMAT
+ ## Verto uses Mustache template rendering to render changelog updates, the default value is:
+ ##
+ ##   ## {{new_version}} - #{Time.now.strftime('%d/%m/%Y')}
+ ##       {{#version_changes}}
+ ##       * {{.}}
+ ##       {{/version_changes}}
+ ##
+ ## A custom format can be specified, eg:
+ # changelog.format =  <<~CHANGELOG
+ #                       ## {{new_version}}
+ #                        {{#version_changes}}
+ #                        * {{.}}
+ #                        {{/version_changes}}
+ #                      CHANGELOG
 }
 
 context(branch('master')) {
@@ -100,20 +116,11 @@ context(branch('master')) {
   }
 
   before_tag_creation {
-    version_changes = sh(
-      %q#git log --oneline --decorate  | grep -B 100 -m 1 "tag:" | grep "pull request" | awk '{print $1}' | xargs git show --format='%b' | grep -v Approved | grep -v "^$" | grep -E "^[[:space:]]*\[.*\]" | sed 's/^[[:space:]]*\(.*\)/ * \1/'#, output: false
-    ).output
-
-    puts "---------------------------"
-    version_changes = "## #{new_version} - #{Time.now.strftime('%d/%m/%Y')}\n#{version_changes}\n"
-    exit unless confirm("Create new Realease?\n" \
-      "---------------------------\n" \
-      "#{version_changes}" \
-      "---------------------------\n"
+    update_changelog(
+      with: :merged_pull_requests_with_bracketed_labels, # Optional, defines the strategy to retrive the changes, default: :merged_pull_requests_with_bracketed_labels
+      confirmation: true, # Optional, asks for confirmation before updating the changelog, default: true
+      filename: 'CHANGELOG.md' # Optional, defines the filename of the CHANGELOG file, default: 'CHANGELOG.md'
     )
-
-    # CHANGELOG
-    file('CHANGELOG.md').prepend(version_changes)
     git('add CHANGELOG.md')
 
     # Uncomment to update the version in other files, like package.json
