@@ -1,3 +1,6 @@
+## 0.10.0 - 14/10/2020
+ * [FEATURE] Adds update_changelog in DSL
+
 ## 0.9.0 - 08/08/2020
  * [FEATURE] Custom Default Pre-Release Identifier
 

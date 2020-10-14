@@ -1,4 +1,4 @@
-verto_version '0.9.0'
+verto_version '0.10.0'
 
 config {
   version.prefix = 'v' # Adds a version_prefix
@@ -24,7 +24,7 @@ context(branch('master')) {
     file('lib/verto/utils/templates/Vertofile').replace(latest_version.to_s, new_version.to_s)
     file('Vertofile').replace(latest_version.to_s, new_version.to_s)
 
-    git!('add lib/verto/utils/templates/Vertofile')
+    git!('add Vertofile lib/verto/utils/templates/Vertofile')
 
     sh!('bundle install')
     sh!('rake install')
@@ -33,4 +33,3 @@ context(branch('master')) {
     git!('commit -m "Bumps Version"')
   }
 }
-
