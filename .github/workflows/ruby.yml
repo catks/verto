@@ -36,3 +36,16 @@ jobs:
         run: |
           export GIT_BRANCH="${GITHUB_REF/refs\/heads\//}"
           ./cc-test-reporter after-build -r ${{secrets.CC_TEST_REPORTER_ID}}
+
+  lint:
+    runs-on: ubuntu-16.04
+    name: Lint
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '2.5'
+      - run: |
+          gem install bundler
+          bundle install --jobs 4 --retry 3
+          bundle exec rubocop

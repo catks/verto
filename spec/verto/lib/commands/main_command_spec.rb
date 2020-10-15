@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'stringio'
 
 RSpec.describe Verto::MainCommand do
@@ -15,13 +17,11 @@ RSpec.describe Verto::MainCommand do
   let(:stderr) { StringIO.new }
 
   around(:each) do |ex|
-    begin
-      ex.run
-    rescue SystemExit => e
-      puts e
+    ex.run
+  rescue SystemExit => e
+    puts e
 
-      raise "Command exits in error #{e.message}"
-    end
+    raise "Command exits in error #{e.message}"
   end
 
   after do
@@ -47,14 +47,14 @@ RSpec.describe Verto::MainCommand do
     end
 
     context 'when Vertofile exists' do
-      before { repo.run 'touch Vertofile'}
+      before { repo.run 'touch Vertofile' }
 
       it 'exits on error' do
-        expect { init }.to raise_error(SystemExit) do |error|
+        expect { init }.to raise_error(SystemExit) do |_error|
           expect(stderr.string).to eq(
             <<~TEXT
-                Project already have a Vertofile.
-                If you want to generate a new with verto init, delete the current one with: `rm Vertofile`
+              Project already have a Vertofile.
+              If you want to generate a new with verto init, delete the current one with: `rm Vertofile`
             TEXT
           )
         end
@@ -75,7 +75,7 @@ RSpec.describe Verto::MainCommand do
   # TODO: Move to a tag_command specfile
   describe 'tag' do
     describe 'up' do
-      subject(:up) { described_class.start(['tag','up'] + options ) }
+      subject(:up) { described_class.start(%w[tag up] + options) }
 
       let(:options) { [] }
       let(:vertofile) { nil }
@@ -103,7 +103,7 @@ RSpec.describe Verto::MainCommand do
         end
 
         it 'exits on error' do
-          expect { up }.to raise_error(SystemExit) do |error|
+          expect { up }.to raise_error(SystemExit) do |_error|
             expect(stderr.string).to eq(
               <<~TEXT
                 Project doesn't have a previous tag version, create a new tag with git.
@@ -137,17 +137,17 @@ RSpec.describe Verto::MainCommand do
           end
 
           it 'exits on error' do
-            expect { up }.to raise_error(SystemExit) do |error|
+            expect { up }.to raise_error(SystemExit) do |_error|
               expect(stderr.string).to eq(
                 <<~TEXT
-                You must specify the version number to be increased, use the some of the options(eg: --major, --minor, --patch, --pre_release=rc)
-                or configure a Vertofile to specify a default option for current context, eg:
+                  You must specify the version number to be increased, use the some of the options(eg: --major, --minor, --patch, --pre_release=rc)
+                  or configure a Vertofile to specify a default option for current context, eg:
 
-                context('qa') {
-                  before_command('tag_up') {
-                    command_options.add(pre_release: 'rc')
+                  context('qa') {
+                    before_command('tag_up') {
+                      command_options.add(pre_release: 'rc')
+                    }
                   }
-                }
                 TEXT
               )
             end
@@ -170,8 +170,8 @@ RSpec.describe Verto::MainCommand do
 
             expect(stderr.string).to eq(
               <<~TEXT
-              Creating Tag 1.0.20...
-              Tag 1.0.20 Created!
+                Creating Tag 1.0.20...
+                Tag 1.0.20 Created!
               TEXT
             )
           end
@@ -179,7 +179,7 @@ RSpec.describe Verto::MainCommand do
           context 'when Vertofile have a command_add option' do
             let(:vertofile) do
               <<~VERTOFILE
-                  command_options.add(pre_release: 'rc')
+                command_options.add(pre_release: 'rc')
               VERTOFILE
             end
 
@@ -211,7 +211,7 @@ RSpec.describe Verto::MainCommand do
           context 'when Vertofile has a prefix configured' do
             let(:vertofile) do
               <<~VERTOFILE
-                  config { version.prefix = 'v' }
+                config { version.prefix = 'v' }
               VERTOFILE
             end
 
@@ -263,14 +263,16 @@ RSpec.describe Verto::MainCommand do
             it 'pulls changes before creating a tag' do
               up
 
-              expect(Verto.config.hooks.select { |h| h.moment == :before }.first).to eq(Verto::DSL::BuiltInHooks::GitPullCurrentBranch)
+              expect(Verto.config.hooks.select { |h| h.moment == :before }.first)
+                .to eq(Verto::DSL::BuiltInHooks::GitPullCurrentBranch)
               expect(Verto::DSL::BuiltInHooks::GitPullCurrentBranch).to have_received(:call)
             end
 
             it 'push changes after creating a tag' do
               up
 
-              expect(Verto.config.hooks.select { |h| h.moment == :after }.first).to eq(Verto::DSL::BuiltInHooks::GitPushCurrentBranch)
+              expect(Verto.config.hooks.select { |h| h.moment == :after }.first)
+                .to eq(Verto::DSL::BuiltInHooks::GitPushCurrentBranch)
               expect(Verto::DSL::BuiltInHooks::GitPushCurrentBranch).to have_received(:call)
             end
           end
@@ -464,13 +466,11 @@ RSpec.describe Verto::MainCommand do
               expect(result).to include('tag: 2.0.0-rc.1)')
             end
           end
-
         end
 
         context 'with --pre-release option' do
           context 'when not specifying the identifier' do
             let(:options) { ['--pre-release'] }
-
 
             context 'when the latest tag is a pre_release' do
               let(:last_tag) { '1.9.19-rc.9' }
@@ -517,7 +517,6 @@ RSpec.describe Verto::MainCommand do
           context 'when specifying the identifier' do
             let(:options) { ['--pre-release=rc'] }
 
-
             context 'when the latest tag is a pre_release' do
               let(:last_tag) { '1.9.19-rc.19' }
 
@@ -541,7 +540,7 @@ RSpec.describe Verto::MainCommand do
               end
 
               it 'exits on error' do
-                expect { up }.to raise_error(SystemExit) do |error|
+                expect { up }.to raise_error(SystemExit) do |_error|
                   expect(stderr.string).to eq(
                     <<~TEXT
                       New version(1.9.19-rc.1) can't be equal or lower than latest version(#{last_tag})

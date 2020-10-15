@@ -1,11 +1,13 @@
-require "bundler/gem_tasks"
-require "rspec/core/rake_task"
-require_relative "lib/verto"
-require_relative "spec/helpers/test_repo.rb"
+# frozen_string_literal: true
+
+require 'bundler/gem_tasks'
+require 'rspec/core/rake_task'
+require_relative 'lib/verto'
+require_relative 'spec/helpers/test_repo.rb'
 
 RSpec::Core::RakeTask.new(:spec)
 
-task :default => :spec
+task default: :spec
 
 desc 'Verto REPL'
 task :console do

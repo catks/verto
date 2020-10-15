@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 RSpec.describe Verto::DSL::Syntax do
-   let(:class_with_syntax) { Class.new { include Verto::DSL:: Syntax } }
-   let(:instance) { class_with_syntax.new }
+  let(:class_with_syntax) { Class.new { include Verto::DSL:: Syntax } }
+  let(:instance) { class_with_syntax.new }
 
   describe '#update_changelog' do
     subject(:update_changelog) { instance.update_changelog(with: source_option, filename: changelog_file) }
@@ -33,7 +35,9 @@ RSpec.describe Verto::DSL::Syntax do
       before { Verto.current_moment = nil }
 
       it 'raises a error' do
-        expect { update_changelog }.to raise_error(Verto::ExitError, "update_changelog is only supported in before_tag_creation or after_command_tag_up")
+        expect { update_changelog }
+          .to raise_error(Verto::ExitError,
+                          'update_changelog is only supported in before_tag_creation or after_command_tag_up')
       end
     end
   end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Verto
   module DSL
     class UpdateChangelog
@@ -10,7 +12,7 @@ module Verto
         {
           merged_pull_requests_with_bracketed_labels: lambda do |executor|
             executor.run(
-              %q#git log --oneline --decorate  | grep -B 100 -m 1 "tag:" | grep "pull request" | awk '{print $1}' | xargs git show --format='%b' | grep -v Approved | grep -v "^$" | grep -E "^[[:space:]]*\[.*\]"#
+              %q(git log --oneline --decorate  | grep -B 100 -m 1 "tag:" | grep "pull request" | awk '{print $1}' | xargs git show --format='%b' | grep -v Approved | grep -v "^$" | grep -E "^[[:space:]]*\[.*\]")
             ).output.split('\n').map(&:strip)
           end
         },
@@ -33,7 +35,9 @@ module Verto
       private
 
       def verify_file_presence!(filename)
-        raise Verto::ExitError, "changelog file '#{filename}' doesnt exist" unless Verto.project_path.join(filename).exist?
+        return if Verto.project_path.join(filename).exist?
+
+        raise Verto::ExitError, "changelog file '#{filename}' doesnt exist"
       end
 
       def version_changes(with)

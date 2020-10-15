@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Verto
   class BaseCommand < Thor
     def self.exit_on_failure?
@@ -23,11 +25,11 @@ module Verto
 
       moments_to_call.each do |moment|
         Verto.config.hooks
-          .select { |hook| hook.moment == moment.to_sym }
-          .each do |hook|
-            Verto.current_moment = hook.moment
-            hook.call(with_attributes: with_attributes)
-          end
+             .select { |hook| hook.moment == moment.to_sym }
+             .each do |hook|
+          Verto.current_moment = hook.moment
+          hook.call(with_attributes: with_attributes)
+        end
       end
     end
   end

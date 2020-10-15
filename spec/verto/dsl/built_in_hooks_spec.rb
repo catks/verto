@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Verto::DSL::BuiltInHooks do
   let(:interpreter) { Verto::DSL.interpreter }
   let(:repo) { TestRepo.new }
@@ -29,7 +31,7 @@ RSpec.describe Verto::DSL::BuiltInHooks do
 
       call
 
-      expect(interpreter).to have_received(:git!).with("push --tags").once
+      expect(interpreter).to have_received(:git!).with('push --tags').once
     end
   end
 
@@ -53,7 +55,7 @@ RSpec.describe Verto::DSL::BuiltInHooks do
 
       call
 
-      expect(interpreter).to have_received(:git!).with("push --tags").once
+      expect(interpreter).to have_received(:git!).with('push --tags').once
       expect(interpreter).to have_received(:git!).with("push origin #{current_branch}").once
     end
   end

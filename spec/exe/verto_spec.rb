@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe 'verto command' do
   before do
     Verto.config.project.path = project_path.to_s
@@ -11,7 +13,7 @@ RSpec.describe 'verto command' do
   let(:repo) { TestRepo.new }
   let(:stderr) { StringIO.new }
   let(:exe_path) { Verto.root_path.join('exe/verto') }
-  let(:project_path) {Verto.root_path.join('tmp/test_repo/') }
+  let(:project_path) { Verto.root_path.join('tmp/test_repo/') }
   let(:last_tag) { '1.1.1' }
   let(:vertofile_path) { Pathname.new(Dir.pwd).join('Vertofile').to_s }
 
@@ -19,7 +21,7 @@ RSpec.describe 'verto command' do
     before do
       repo.run("git tag #{last_tag}")
       repo.commit!('Second')
-      allow(File).to receive(:exists?).and_return(true)
+      allow(File).to receive(:exist?).and_return(true)
     end
 
     it 'loads the Vertofile' do
@@ -39,7 +41,7 @@ RSpec.describe 'verto command' do
     before do
       repo.run("git tag #{last_tag}")
       repo.commit!('Second')
-      allow(File).to receive(:exists?).and_return(false)
+      allow(File).to receive(:exist?).and_return(false)
     end
 
     it 'doenst load a Vertofile' do
@@ -59,7 +61,7 @@ RSpec.describe 'verto command' do
     before do
       repo.run("git tag #{last_tag}")
       repo.commit!('Second')
-      allow(File).to receive(:exists?).and_return(true)
+      allow(File).to receive(:exist?).and_return(true)
       ENV['VERTOFILE_PATH'] = vertofile_env_path
     end
 

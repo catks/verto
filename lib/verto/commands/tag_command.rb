@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 module Verto
   class TagCommand < BaseCommand
-    desc "up", "Create's a new tag"
+    desc 'up', "Create's a new tag"
 
     option :major, type: :boolean, default: false
     option :minor, type: :boolean, default: false
@@ -13,7 +15,7 @@ module Verto
     def up
       load_config_hooks!
 
-      call_hooks(%i[before before_tag_up], with_attributes: { command_options: options} )
+      call_hooks(%i[before before_tag_up], with_attributes: { command_options: options })
 
       validate_version_option_presence!
 
@@ -27,7 +29,7 @@ module Verto
 
       validate_new_version!(new_version, latest_version)
 
-      call_hooks(:before_tag_creation, with_attributes: { new_version: new_version } )
+      call_hooks(:before_tag_creation, with_attributes: { new_version: new_version })
 
       stderr.puts "Creating Tag #{version_prefix}#{new_version}..."
       tag_repository.create!("#{version_prefix}#{new_version}")
@@ -42,7 +44,7 @@ module Verto
     include Verto.import['tag_repository']
 
     def up_version(version, options)
-      up_options = options.select { |_, value| value == true }.keys.map(&:to_sym) & [:major, :minor, :patch]
+      up_options = options.select { |_, value| value == true }.keys.map(&:to_sym) & %i[major minor patch]
       up_option = up_options.min
 
       new_version = version.up(up_option)
@@ -50,12 +52,12 @@ module Verto
       if options[:pre_release]
         identifier = pre_release_configured? ? options[:pre_release] : version.pre_release.name || default_identifier
         new_version = new_version.with_pre_release(identifier)
-        new_version = new_version.up(:pre_release) if new_version.pre_release.name == version.pre_release.name && new_version == version
+        if new_version.pre_release.name == version.pre_release.name && new_version == version
+          new_version = new_version.up(:pre_release)
+        end
       end
 
-      if options[:release]
-        new_version = new_version.release_version
-      end
+      new_version = new_version.release_version if options[:release]
 
       new_version
     end
@@ -65,38 +67,44 @@ module Verto
     end
 
     def validate_latest_tag!(latest_tag)
+      return if latest_tag
+
       command_error!(
         <<~TEXT
           Project doesn't have a previous tag version, create a new tag with git.
           eg: `git tag #{version_prefix}0.1.0`
         TEXT
-      ) unless latest_tag
+      )
     end
 
     def validate_new_version!(new_version, latest_version)
+      return unless new_version < latest_version && Verto.config.version.validations.new_version_must_be_bigger
+
       command_error!(
         <<~TEXT
-        New version(#{new_version}) can't be equal or lower than latest version(#{latest_version})
-        run up --pre-release with --patch, --minor or --major (eg: verto tag up --patch --pre-release=rc),
-        add filters (eg: verto tag up --pre-release --filter=pre_release_only)
-        or disable tag validation in Vertofile with config.version.validations.new_version_must_be_bigger = false
+          New version(#{new_version}) can't be equal or lower than latest version(#{latest_version})
+          run up --pre-release with --patch, --minor or --major (eg: verto tag up --patch --pre-release=rc),
+          add filters (eg: verto tag up --pre-release --filter=pre_release_only)
+          or disable tag validation in Vertofile with config.version.validations.new_version_must_be_bigger = false
         TEXT
-      ) if new_version < latest_version && Verto.config.version.validations.new_version_must_be_bigger
+      )
     end
 
     def validate_version_option_presence!
+      return if options[:major] || options[:minor] || options[:patch] || options[:pre_release] || options[:release]
+
       command_error!(
         <<~TEXT
-        You must specify the version number to be increased, use the some of the options(eg: --major, --minor, --patch, --pre_release=rc)
-        or configure a Vertofile to specify a default option for current context, eg:
+          You must specify the version number to be increased, use the some of the options(eg: --major, --minor, --patch, --pre_release=rc)
+          or configure a Vertofile to specify a default option for current context, eg:
 
-        context('qa') {
-          before_command('tag_up') {
-            command_options.add(pre_release: 'rc')
+          context('qa') {
+            before_command('tag_up') {
+              command_options.add(pre_release: 'rc')
+            }
           }
-        }
         TEXT
-      ) unless options[:major] || options[:minor] || options[:patch] || options[:pre_release] || options[:release]
+      )
     end
 
     def load_filter
@@ -108,7 +116,9 @@ module Verto
     end
 
     def load_config_hooks!
-      Verto.config.hooks.prepend Verto::DSL::BuiltInHooks::GitPullCurrentBranch if Verto.config.git.pull_before_tag_creation
+      if Verto.config.git.pull_before_tag_creation
+        Verto.config.hooks.prepend Verto::DSL::BuiltInHooks::GitPullCurrentBranch
+      end
       Verto.config.hooks << Verto::DSL::BuiltInHooks::GitPushCurrentBranch if Verto.config.git.push_after_tag_creation
     end
 

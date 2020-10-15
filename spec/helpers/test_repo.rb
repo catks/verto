@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'fileutils'
 
 class TestRepo
   attr_accessor :path
 
-  def initialize(path=Verto.root_path.join('tmp/test_repo'))
+  def initialize(path = Verto.root_path.join('tmp/test_repo'))
     FileUtils.mkdir_p(path)
     @path = path
   end
@@ -24,7 +26,7 @@ class TestRepo
     init!
   end
 
-  def tag!(version)
+  def tag!(_version)
     run 'git tag version'
   end
 

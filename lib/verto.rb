@@ -1,13 +1,15 @@
-require "thor"
-require "dry-container"
-require "dry-configurable"
-require "dry-auto_inject"
-require "vseries"
-require "mustache"
-require "pathname"
+# frozen_string_literal: true
 
-require "verto/version"
-require "verto/utils/command_options"
+require 'thor'
+require 'dry-container'
+require 'dry-configurable'
+require 'dry-auto_inject'
+require 'vseries'
+require 'mustache'
+require 'pathname'
+
+require 'verto/version'
+require 'verto/utils/command_options'
 
 module Verto
   extend Dry::Configurable
@@ -65,7 +67,9 @@ module Verto
   def self.container
     @container ||= Dry::Container.new.tap do |container|
       container.register('system_command_executor') { SystemCommandExecutor.new }
-      container.register('system_command_executor_without_output') { SystemCommandExecutor.new(stdout: nil, stderr: nil) }
+      container.register('system_command_executor_without_output') do
+        SystemCommandExecutor.new(stdout: nil, stderr: nil)
+      end
       container.register('cli_helpers') { CliHelpers }
 
       container.register('tag_repository') { TagRepository.new }
@@ -112,20 +116,20 @@ module Verto
   end
 end
 
-require "verto/utils/semantic_version.rb"
-require "verto/utils/system_command_executor"
-require "verto/utils/tag_filter"
-require "verto/utils/template"
-require "verto/utils/cli_helpers"
-require "verto/utils/strict_hash"
-require "verto/dsl"
-require "verto/dsl/syntax"
-require "verto/dsl/interpreter"
-require "verto/dsl/hook"
-require "verto/dsl/file"
-require "verto/dsl/update_changelog"
-require "verto/dsl/built_in_hooks"
-require "verto/commands/base_command"
-require "verto/commands/tag_command"
-require "verto/commands/main_command"
-require "verto/repositories/tag_repository"
+require 'verto/utils/semantic_version.rb'
+require 'verto/utils/system_command_executor'
+require 'verto/utils/tag_filter'
+require 'verto/utils/template'
+require 'verto/utils/cli_helpers'
+require 'verto/utils/strict_hash'
+require 'verto/dsl'
+require 'verto/dsl/syntax'
+require 'verto/dsl/interpreter'
+require 'verto/dsl/hook'
+require 'verto/dsl/file'
+require 'verto/dsl/update_changelog'
+require 'verto/dsl/built_in_hooks'
+require 'verto/commands/base_command'
+require 'verto/commands/tag_command'
+require 'verto/commands/main_command'
+require 'verto/repositories/tag_repository'

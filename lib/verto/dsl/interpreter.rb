@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Verto
   module DSL
     class Interpreter
@@ -6,15 +8,14 @@ module Verto
       # TODO: Wrap stacktrace
       Error = Class.new(Verto::ExitError)
 
-      def evaluate(vertofile_content=nil, attributes: {}, &block)
+      def evaluate(vertofile_content = nil, attributes: {}, &block)
         with_attributes(attributes) do
-          vertofile_content ? instance_eval(vertofile_content)  : instance_eval(&block)
+          vertofile_content ? instance_eval(vertofile_content) : instance_eval(&block)
         end
+      rescue StandardError => e
+        raise e if e.is_a?(Verto::ExitError)
 
-      rescue StandardError => error
-        raise error if error.is_a?(Verto::ExitError)
-
-        raise Error, error.message
+        raise Error, e.message
       end
 
       private
@@ -27,7 +28,7 @@ module Verto
 
         block.call
 
-        attributes.each do |key, value|
+        attributes.each do |key, _value|
           instance_variable_set("@#{key}", nil)
           singleton_class.remove_method(key)
         end

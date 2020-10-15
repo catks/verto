@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Verto
   module DSL
     module BuiltInHooks
@@ -6,7 +8,7 @@ module Verto
       end
 
       GitPushTags = DSL::Hook.new(moment: :after) do
-        git!("push --tags")
+        git!('push --tags')
       end
 
       GitPushCurrentBranchCommits = DSL::Hook.new(moment: :after) do

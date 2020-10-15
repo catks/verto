@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module CliHelpers
   class << self
     def confirm(text)
