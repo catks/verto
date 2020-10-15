@@ -1,8 +1,37 @@
-djin_version: '0.6.0'
+djin_version: '0.10.0'
 
 tasks:
+  run:
+    local:
+      run:
+        - {{args}}
+
+  set_verto_version:
+    local:
+      run:
+        - VERTO_BUILD_VERSION=$(cat lib/verto/version.rb | grep -ohE '\d+\.\d+\.\d+')
+
+  tag_up:
+    docker:
+      image: "catks/verto:0.10.0"
+      run:
+        commands:
+          - "verto tag up {{args}}"
+        options: |
+          -v ~/.gitconfig:/etc/gitconfig -v $(pwd):/usr/src/project \
+          -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -v $HOME/.ssh/id_rsa:/root/.ssh/id_rsa \
+          -e SSH_PRIVATE_KEY=/root/.ssh/id_rsa \
+          --entrypoint='' \
+    depends_on:
+      - set_verto_version
+
   release:
     local:
       run:
-        - verto tag up {{args}}
         - bundle exec rake release
+        - docker build . -t verto
+        - docker tag verto catks/verto:$VERTO_BUILD_VERSION
+        - docker push catks/verto:$VERTO_BUILD_VERSION
+    depends_on:
+      - set_verto_version
+      - tag_up
