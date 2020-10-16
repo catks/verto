@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class StrictHash < Hash
   def initialize(hash, default_proc: nil)
     super()

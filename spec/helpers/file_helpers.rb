@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FileHelpers
   def file_content(filename)
     file(filename).readlines.join

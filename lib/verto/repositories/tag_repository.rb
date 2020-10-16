@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Verto
   class TagRepository
     include Verto.import[executor: 'system_command_executor_without_output']

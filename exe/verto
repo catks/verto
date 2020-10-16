@@ -1,17 +1,19 @@
 #!/usr/bin/env ruby
-Signal.trap("INT") { exit 2 }
+# frozen_string_literal: true
+
+Signal.trap('INT') { exit 2 }
 
 require_relative '../lib/verto'
 
 vertofile_path = ENV['VERTOFILE_PATH'] || Pathname.new(Dir.pwd).join('Vertofile').to_s
 begin
-  Verto::DSL.load_file(vertofile_path) if File.exists?(vertofile_path)
+  Verto::DSL.load_file(vertofile_path) if File.exist?(vertofile_path)
 
   Verto::MainCommand.start(ARGV)
 
 # TODO: Improve error Message Handling
-rescue Verto::ExitError => ex
-  Verto.stderr.puts ex.message
+rescue Verto::ExitError => e
+  Verto.stderr.puts e.message
   Verto.stderr.puts 'Exiting Verto...'
   exit 1
 end

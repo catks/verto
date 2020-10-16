@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'open3'
 
 class TestCommand
@@ -8,7 +10,7 @@ class TestCommand
   end
 
   def run!
-    Open3.popen3(@command) do |stdin, stdout, stderr, _|
+    Open3.popen3(@command) do |_stdin, stdout, stderr, _|
       @output = stdout.read
       @error = stderr.read
     end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Verto
   module DSL
     class File
@@ -36,8 +38,8 @@ module Verto
         end
       end
 
-      alias_method :gsub, :replace_all
-      alias_method :sub, :replace
+      alias gsub replace_all
+      alias sub replace
 
       private
 

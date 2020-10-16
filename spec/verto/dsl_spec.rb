@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Verto::DSL do
   describe '.load_file' do
     subject(:load_file) { described_class.load_file(vertofile_path) }
@@ -118,29 +120,26 @@ RSpec.describe Verto::DSL do
     end
 
     around(:each) do |ex|
-      begin
-        ex.run
-      rescue SystemExit => e
-        puts e
-        raise "Command exits in error #{e.message}"
-      end
+      ex.run
+    rescue SystemExit => e
+      puts e
+      raise "Command exits in error #{e.message}"
     end
 
     after do
       repo.clear!
     end
 
-    def run_command(new_version: '1.1.1', before_with_attributes: {}, after_with_attributes: {}, &block)
+    def run_command(new_version: '1.1.1', before_with_attributes: {}, after_with_attributes: {})
       fake_command.new.instance_eval do
         result = nil
 
-
-        call_hooks("before")
-        call_hooks("before_tag_up", with_attributes: before_with_attributes)
-        call_hooks("before_tag_creation", with_attributes: { new_version: new_version } )
+        call_hooks('before')
+        call_hooks('before_tag_up', with_attributes: before_with_attributes)
+        call_hooks('before_tag_creation', with_attributes: { new_version: new_version })
         result = yield if block_given?
-        call_hooks("after_tag_up", with_attributes: after_with_attributes)
-        call_hooks("after")
+        call_hooks('after_tag_up', with_attributes: after_with_attributes)
+        call_hooks('after')
 
         result
       end
@@ -180,9 +179,9 @@ RSpec.describe Verto::DSL do
       it 'run the before_tag_creation hook' do
         load_file
 
-        expect {
+        expect do
           run_command(new_version: '1.2.3', after_with_attributes: { new_version: '1.2.3' }) { true }
-        }.to change { file_content('CHANGELOG.md') }.from('').to("## 1.2.3 - #{Time.now.strftime('%d/%m/%Y')}\n\n")
+        end.to change { file_content('CHANGELOG.md') }.from('').to("## 1.2.3 - #{Time.now.strftime('%d/%m/%Y')}\n\n")
 
         output = command_executor.run('git log -n 1 HEAD').output
         expect(output).to include('Updates CHANGELOG')
@@ -207,7 +206,9 @@ RSpec.describe Verto::DSL do
       it 'adds preconfigured options for tag up' do
         load_file
 
-        on_command_options = run_command(after_with_attributes: { new_version: '1.2.3' }) { Verto.config.command_options }
+        on_command_options = run_command(after_with_attributes: { new_version: '1.2.3' }) do
+          Verto.config.command_options
+        end
 
         expect(on_command_options).to include(pre_release: 'rc')
       end
@@ -267,7 +268,6 @@ RSpec.describe Verto::DSL do
         expect(Verto.config.output.stdout_to).to eq('verto.log')
       end
 
-
       it 'saves the error on error.log file' do
         stderr = Verto.container.resolve('stderr')
 
@@ -285,7 +285,8 @@ RSpec.describe Verto::DSL do
 
       it 'exits in error when executing the command' do
         expect { load_file }
-          .to raise_error(Verto::DSL::Interpreter::Error, %r{No such file or directory @ rb_sysopen - .+verto/tmp/test_repo/love})
+          .to raise_error(Verto::DSL::Interpreter::Error,
+                          %r{No such file or directory @ rb_sysopen - .+verto/tmp/test_repo/love})
       end
     end
 
@@ -294,7 +295,8 @@ RSpec.describe Verto::DSL do
 
       it 'exits in error' do
         expect { load_file }
-          .to raise_error(Verto::ExitError, "Current Verto version is #{Verto::VERSION}, required version is #{verto_version} or higher")
+          .to raise_error(Verto::ExitError,
+                          "Current Verto version is #{Verto::VERSION}, required version is #{verto_version} or higher")
       end
     end
   end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Verto::DSL::UpdateChangelog do
   before do
     Verto.config.project.path = repo.path.to_s
@@ -11,7 +13,9 @@ RSpec.describe Verto::DSL::UpdateChangelog do
   let(:instance) { described_class.new }
 
   describe '#call' do
-    subject(:update_changelog) { instance.call(with: source_option, filename: changelog_file, new_version: new_version) }
+    subject(:update_changelog) do
+      instance.call(with: source_option, filename: changelog_file, new_version: new_version)
+    end
 
     before do
       repo.init!
@@ -48,24 +52,24 @@ RSpec.describe Verto::DSL::UpdateChangelog do
         repo.tag!('1.1.0')
         repo.commit!(
           <<~COMMIT
-          Merged in fix/simple_fix (pull request #42)
+            Merged in fix/simple_fix (pull request #42)
 
-          [FIX] A simple fix
+            [FIX] A simple fix
 
-          Approved-by: User One <user1@test.com>
-          Approved-by: User Two <user2@test.com>
+            Approved-by: User One <user1@test.com>
+            Approved-by: User Two <user2@test.com>
           COMMIT
         )
         repo.run("touch #{changelog_file}")
       end
 
       include_examples 'updates CHANGELOG.md',
-        expected_changelog_content:
-        <<~CHANGELOG
-                          ## 1.1.1 - #{Time.now.strftime('%d/%m/%Y')}
-                           * [FIX] A simple fix
+                       expected_changelog_content:
+                       <<~CHANGELOG
+                         ## 1.1.1 - #{Time.now.strftime('%d/%m/%Y')}
+                          * [FIX] A simple fix
 
-      CHANGELOG
+                       CHANGELOG
 
       context 'with a changelog with a previous content' do
         before do
@@ -73,13 +77,13 @@ RSpec.describe Verto::DSL::UpdateChangelog do
         end
 
         include_examples 'updates CHANGELOG.md',
-          expected_changelog_content:
-          <<~CHANGELOG
-                            ## 1.1.1 - #{Time.now.strftime('%d/%m/%Y')}
-                             * [FIX] A simple fix
+                         expected_changelog_content:
+                         <<~CHANGELOG
+                           ## 1.1.1 - #{Time.now.strftime('%d/%m/%Y')}
+                            * [FIX] A simple fix
 
-                            ## 1.1.0 - 12/10/2020
-        CHANGELOG
+                           ## 1.1.0 - 12/10/2020
+                         CHANGELOG
       end
     end
 
@@ -98,12 +102,12 @@ RSpec.describe Verto::DSL::UpdateChangelog do
       end
 
       include_examples 'updates CHANGELOG.md',
-        expected_changelog_content:
-        <<~CHANGELOG
-                          ## 1.1.1 - #{Time.now.strftime('%d/%m/%Y')}
-                           * [FEATURE] Custom Defaults
+                       expected_changelog_content:
+                       <<~CHANGELOG
+                         ## 1.1.1 - #{Time.now.strftime('%d/%m/%Y')}
+                          * [FEATURE] Custom Defaults
 
-      CHANGELOG
+                       CHANGELOG
 
       context 'with a changelog with a previous content' do
         before do
@@ -111,13 +115,13 @@ RSpec.describe Verto::DSL::UpdateChangelog do
         end
 
         include_examples 'updates CHANGELOG.md',
-          expected_changelog_content:
-          <<~CHANGELOG
-                            ## 1.1.1 - #{Time.now.strftime('%d/%m/%Y')}
-                             * [FEATURE] Custom Defaults
+                         expected_changelog_content:
+                         <<~CHANGELOG
+                           ## 1.1.1 - #{Time.now.strftime('%d/%m/%Y')}
+                            * [FEATURE] Custom Defaults
 
-                            ## 1.1.0 - 12/10/2020
-        CHANGELOG
+                           ## 1.1.0 - 12/10/2020
+                         CHANGELOG
       end
     end
 
@@ -127,11 +131,11 @@ RSpec.describe Verto::DSL::UpdateChangelog do
       end
 
       include_examples 'updates CHANGELOG.md',
-        expected_changelog_content:
-        <<~CHANGELOG
-                            ## 1.1.1 - #{Time.now.strftime('%d/%m/%Y')}
+                       expected_changelog_content:
+                       <<~CHANGELOG
+                         ## 1.1.1 - #{Time.now.strftime('%d/%m/%Y')}
 
-      CHANGELOG
+                       CHANGELOG
     end
 
     context 'without a changelog file' do
@@ -157,12 +161,12 @@ RSpec.describe Verto::DSL::UpdateChangelog do
       end
 
       include_examples 'updates CHANGELOG.md',
-        expected_changelog_content:
-        <<~CHANGELOG
-                          ## 1.1.1 - #{Time.now.strftime('%d/%m/%Y')}
-                           * [FEATURE] Custom Defaults
+                       expected_changelog_content:
+                       <<~CHANGELOG
+                         ## 1.1.1 - #{Time.now.strftime('%d/%m/%Y')}
+                          * [FEATURE] Custom Defaults
 
-      CHANGELOG
+                       CHANGELOG
     end
 
     context 'with a invalid source option' do

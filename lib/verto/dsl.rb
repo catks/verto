@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Verto
   module DSL
     def self.load_file(filepath)

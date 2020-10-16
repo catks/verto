@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Verto
   class Template
     def self.render(template_name, to:)

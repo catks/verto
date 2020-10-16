@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'stringio'
 
 RSpec.describe Verto::SystemCommandExecutor do
   let(:instance) { described_class.new(path: './') }
 
-  describe  '#run' do
+  describe '#run' do
     subject(:run) { instance.run(command) }
 
     context 'with a command that exit with success' do
@@ -67,4 +69,3 @@ RSpec.describe Verto::SystemCommandExecutor do
     end
   end
 end
-
