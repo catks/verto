@@ -109,6 +109,28 @@ RSpec.describe Verto::DSL::UpdateChangelog do
 
                        CHANGELOG
 
+      context 'with multiple pull requests merged' do
+        before do
+          repo.commit!(
+            <<~COMMIT
+              Merge pull request #19 from catks/feature/another_one
+
+              [FEATURE] Another One
+
+            COMMIT
+          )
+        end
+
+        include_examples 'updates CHANGELOG.md',
+                         expected_changelog_content:
+                         <<~CHANGELOG
+                           ## 1.1.1 - #{Time.now.strftime('%d/%m/%Y')}
+                            * [FEATURE] Another One
+                            * [FEATURE] Custom Defaults
+
+                         CHANGELOG
+      end
+
       context 'with a changelog with a previous content' do
         before do
           repo.run("echo '## 1.1.0 - 12/10/2020' > #{changelog_file}")

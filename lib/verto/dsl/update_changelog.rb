@@ -13,7 +13,7 @@ module Verto
           merged_pull_requests_with_bracketed_labels: lambda do |executor|
             executor.run(
               %q(git log --oneline --decorate  | grep -B 100 -m 1 "tag:" | grep "pull request" | awk '{print $1}' | xargs git show --format='%b' | grep -v Approved | grep -v "^$" | grep -E "^[[:space:]]*\[.*\]")
-            ).output.split('\n').map(&:strip)
+            ).output.split("\n").map(&:strip)
           end
         },
         default_proc: ->(hash, _) { raise InvalidChangelogSource, "Invalid CHANGELOG Source, avaliable options: '#{hash.keys.join(',')}'" }
