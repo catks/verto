@@ -1,3 +1,8 @@
+## 0.10.1 - 14/01/2021
+ * [FIX] UpdateChangelog Versions
+ * [TECH] Adds Rubocop
+ * [TECH] Github Actions CI
+
 ## 0.10.0 - 14/10/2020
  * [FEATURE] Adds update_changelog in DSL
 
