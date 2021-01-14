@@ -44,9 +44,9 @@ module Verto
     setting :format,
             <<~CHANGELOG
               ## {{new_version}} - #{Time.now.strftime('%d/%m/%Y')}
-               {{#version_changes}}
+              {{#version_changes}}
                * {{.}}
-               {{/version_changes}}
+              {{/version_changes}}
             CHANGELOG
   end
 

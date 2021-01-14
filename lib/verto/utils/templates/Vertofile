@@ -21,7 +21,7 @@ config {
  #                        {{#version_changes}}
  #                        * {{.}}
  #                        {{/version_changes}}
- #                      CHANGELOG}
+ #                      CHANGELOG
 }
 
 context(branch('master')) {
@@ -29,7 +29,7 @@ context(branch('master')) {
     command_options.add(filter: 'release_only')
   }
 
-  before_tag_creation{
+  before_tag_creation {
     # Uncomment to update CHANGELOG file
     # update_changelog(with: :merged_pull_requests_with_bracketed_labels,
     #                  confirmation: true,
@@ -64,6 +64,6 @@ context(branch('master')) {
 
 # Uncomment to block tag creation in other branchs
 #context(!branch('master', 'staging')) {
-#  error "Tags only can be created in master or staging branch"
+#  error 'Tags only can be created in master or staging branch'
 #  exit
 #}
