@@ -70,8 +70,8 @@ You can run verto right out of the box without any configuration:
 
   # You can filter the tags you want to consider for increasing
 
-  verto tag up --patch --filter=release_only # For Realease Tags Only
-  verto tag up --patch --filter=pre_release_only # For Pre Realease Tags Only
+  verto tag up --patch --filter=release_only # For Release Tags Only
+  verto tag up --patch --filter=pre_release_only # For Pre Release Tags Only
   verto tag up --patch --filter='\d+\.\d+\.\d+-alpha.*' # Custom Regexp!
 
 ```
