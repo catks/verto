@@ -1,3 +1,7 @@
+## 0.10.2 - 23/02/2021
+ * [TECH] Adds Ruby 3 in Github Actions
+ * [FIX] Update Changelog Typo
+
 ## 0.10.1 - 14/01/2021
  * [FIX] UpdateChangelog Versions
  * [TECH] Adds Rubocop
