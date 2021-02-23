@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 module TagFilter
-  REALEASE_ONLY = /\d+\.\d+\.\d+$/.freeze
-  PRE_REALEASE_ONLY = /\d+\.\d+\.\d+-.*\d+/.freeze
+  RELEASE_ONLY = /\d+\.\d+\.\d+$/.freeze
+  PRE_RELEASE_ONLY = /\d+\.\d+\.\d+-.*\d+/.freeze
 
   FILTERS = {
-    release_only: REALEASE_ONLY,
-    pre_release_only: PRE_REALEASE_ONLY,
+    release_only: RELEASE_ONLY,
+    pre_release_only: PRE_RELEASE_ONLY,
     all: nil
   }.freeze
 

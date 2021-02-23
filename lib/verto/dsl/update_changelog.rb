@@ -25,7 +25,7 @@ module Verto
         stdout.puts separator
         changelog_changes = format_changes(new_version, version_changes(with))
 
-        exit if confirmation && !cli_helpers.confirm("Create new Realease?\n" \
+        exit if confirmation && !cli_helpers.confirm("Create new Release?\n" \
                                                      "#{separator}\n" \
                                                      "#{changelog_changes}" \
                                                      "#{separator}\n")
