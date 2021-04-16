@@ -1,3 +1,7 @@
+## 0.11.0 - 16/04/2021
+ * [FEATURE] Adds fetch_before_tag_creation built-in hook
+ * [FEATURE] Verto Tag Init Command
+
 ## 0.10.2 - 23/02/2021
  * [TECH] Adds Ruby 3 in Github Actions
  * [FIX] Update Changelog Typo
