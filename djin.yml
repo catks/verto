@@ -13,7 +13,7 @@ tasks:
 
   tag_up:
     docker:
-      image: "catks/verto:0.10.0"
+      image: "catks/verto:0.10.1"
       run:
         commands:
           - "verto tag up {{args}}"
@@ -26,6 +26,19 @@ tasks:
       - set_verto_version
 
   release:
+    depends_on:
+      - 'release:gem'
+      - 'release:docker'
+
+  'release:gem':
+    local:
+      run:
+        - bundle exec rake release
+    depends_on:
+      - set_verto_version
+      - tag_up
+
+  'release:docker':
     local:
       run:
         - bundle exec rake release

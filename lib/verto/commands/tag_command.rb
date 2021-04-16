@@ -1,7 +1,19 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ClassLength
 module Verto
   class TagCommand < BaseCommand
+    desc 'init', "Create's the first tag"
+
+    def init
+      load_config_hooks!
+
+      error_message = 'This repository already has tags'
+      raise Verto::ExitError, error_message if tag_repository.any?
+
+      create_git_tag('0.1.0')
+    end
+
     desc 'up', "Create's a new tag"
 
     option :major, type: :boolean, default: false
@@ -31,9 +43,7 @@ module Verto
 
       call_hooks(:before_tag_creation, with_attributes: { new_version: new_version })
 
-      stderr.puts "Creating Tag #{version_prefix}#{new_version}..."
-      tag_repository.create!("#{version_prefix}#{new_version}")
-      stderr.puts "Tag #{version_prefix}#{new_version} Created!"
+      create_git_tag(new_version)
 
       call_hooks(:after_tag_up, with_attributes: { new_version: new_version })
       call_hooks(:after)
@@ -60,6 +70,12 @@ module Verto
       new_version = new_version.release_version if options[:release]
 
       new_version
+    end
+
+    def create_git_tag(version)
+      stderr.puts "Creating Tag #{version_prefix}#{version}..."
+      tag_repository.create!("#{version_prefix}#{version}")
+      stderr.puts "Tag #{version_prefix}#{version} Created!"
     end
 
     def pre_release_configured?
@@ -127,3 +143,4 @@ module Verto
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
