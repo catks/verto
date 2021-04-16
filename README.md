@@ -56,6 +56,8 @@ Now you can run any verto command! :)
 You can run verto right out of the box without any configuration:
 
 ```shell
+  verto tag init # Creates the initial tag (0.1.0) if the repository doesn't have tags
+
   verto tag up --patch # Creates a new tag increasing the patch number
   verto tag up --minor # Creates a new tag increasing the minor number
   verto tag up --major # Creates a new tag increasing the major number

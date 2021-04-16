@@ -13,6 +13,10 @@ module Verto
       executor.run! "git tag #{tag}"
     end
 
+    def any?
+      all.any?
+    end
+
     def all(filter: nil)
       results = executor.run("git tag | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+(-.+\.[0-9]+)*' | sed 's/\([0-9]\.[0-9]\.[0-9]$\)/\1-zzzzzzzzzz/' | sort -V |  sed 's/-zzzzzzzzzz//' | cat").output.split
 

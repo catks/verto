@@ -74,18 +74,63 @@ RSpec.describe Verto::MainCommand do
 
   # TODO: Move to a tag_command specfile
   describe 'tag' do
+    let(:options) { [] }
+    let(:vertofile) { nil }
+    let(:command_executor) { Verto::SystemCommandExecutor.new }
+
+    before do
+      allow(Verto::SystemCommandExecutor).to receive(:new).and_return(command_executor)
+
+      Verto::DSL::Interpreter.new.evaluate(vertofile) if vertofile
+    end
+
+    describe 'init' do
+      subject(:init) { described_class.start(%w[tag init] + options) }
+
+      context 'when the repository doesnt has previous tags' do
+        before do
+          repo.reload!
+        end
+
+        it 'create the first tag' do
+          init
+          result = repo.run('git log --decorate HEAD')
+          expect(result).to include('tag: 0.1.0')
+        end
+      end
+
+      context 'when the repository has a tag' do
+        before do
+          repo.reload!
+          repo.commit!('Second')
+          repo.run("git tag #{last_tag}")
+          repo.commit!('Third')
+        end
+
+        let(:last_tag) { '0.2.0' }
+
+        it 'dont create a tag' do
+          expect { init }.to raise_error(SystemExit) do |error|
+            expect(error.status).to eq(1)
+            result = repo.run('git log --decorate HEAD')
+            expect(result).to_not include('tag: 0.1.0')
+          end
+        end
+
+        it 'exits on error' do
+          expect { init }.to raise_error(SystemExit) do |_error|
+            expect(stderr.string).to eq(
+              <<~TEXT
+                This repository already has tags
+              TEXT
+            )
+          end
+        end
+      end
+    end
+
     describe 'up' do
       subject(:up) { described_class.start(%w[tag up] + options) }
-
-      let(:options) { [] }
-      let(:vertofile) { nil }
-      let(:command_executor) { Verto::SystemCommandExecutor.new }
-
-      before do
-        allow(Verto::SystemCommandExecutor).to receive(:new).and_return(command_executor)
-
-        Verto::DSL::Interpreter.new.evaluate(vertofile) if vertofile
-      end
 
       context 'when the repository doesnt have a previous tag' do
         before do
