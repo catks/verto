@@ -132,10 +132,22 @@ module Verto
     end
 
     def load_config_hooks!
-      if Verto.config.git.pull_before_tag_creation
-        Verto.config.hooks.prepend Verto::DSL::BuiltInHooks::GitPullCurrentBranch
-      end
-      Verto.config.hooks << Verto::DSL::BuiltInHooks::GitPushCurrentBranch if Verto.config.git.push_after_tag_creation
+      enabled_hooks = ->(_, v) { v }
+
+      config_hooks[:before].select(&enabled_hooks).keys.each { |hook| Verto.config.hooks.prepend(hook) }
+      config_hooks[:after].select(&enabled_hooks).keys.each { |hook| Verto.config.hooks << hook }
+    end
+
+    def config_hooks
+      @config_hooks ||= {
+        before: {
+          Verto::DSL::BuiltInHooks::GitPullCurrentBranch => Verto.config.git.pull_before_tag_creation,
+          Verto::DSL::BuiltInHooks::GitFetch => Verto.config.git.fetch_before_tag_creation
+        },
+        after: {
+          Verto::DSL::BuiltInHooks::GitPushCurrentBranch => Verto.config.git.push_after_tag_creation
+        }
+      }
     end
 
     def default_identifier

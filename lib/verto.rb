@@ -38,6 +38,7 @@ module Verto
   setting :git do
     setting :pull_before_tag_creation, false
     setting :push_after_tag_creation, false
+    setting :fetch_before_tag_creation, false
   end
 
   setting :changelog do

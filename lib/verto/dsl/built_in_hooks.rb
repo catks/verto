@@ -7,6 +7,10 @@ module Verto
         git!("pull origin #{current_branch}")
       end
 
+      GitFetch = DSL::Hook.new(moment: :before) do
+        git!('fetch')
+      end
+
       GitPushTags = DSL::Hook.new(moment: :after) do
         git!('push --tags')
       end
