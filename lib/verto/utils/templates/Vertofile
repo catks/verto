@@ -5,6 +5,7 @@ config {
  # pre_release.initial_number = 0 # Configures pre_release initial number, defaults to 1
  # project.path = "#{project_path}" # Configures a custom project path
  # git.pull_before_tag_creation = true # Pull Changes before tag creation
+ # git.fetch_before_tag_creation = true # Fetch Branches and Tags before tag creation
  # git.push_after_tag_creation = true # Push changes after tag creation
 
  ## CHANGELOG FORMAT

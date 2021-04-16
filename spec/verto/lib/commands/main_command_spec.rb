@@ -286,6 +286,7 @@ RSpec.describe Verto::MainCommand do
               <<~VERTOFILE
                 config {
                   git.pull_before_tag_creation = true
+                  git.fetch_before_tag_creation = true
                   git.push_after_tag_creation = true
                 }
               VERTOFILE
@@ -296,6 +297,7 @@ RSpec.describe Verto::MainCommand do
             before do
               allow(Verto::DSL::BuiltInHooks::GitPullCurrentBranch).to receive(:call)
               allow(Verto::DSL::BuiltInHooks::GitPushCurrentBranch).to receive(:call)
+              allow(Verto::DSL::BuiltInHooks::GitFetch).to receive(:call)
             end
 
             it 'create a tag' do
@@ -308,9 +310,17 @@ RSpec.describe Verto::MainCommand do
             it 'pulls changes before creating a tag' do
               up
 
-              expect(Verto.config.hooks.select { |h| h.moment == :before }.first)
+              expect(Verto.config.hooks.select { |h| h.moment == :before }.last)
                 .to eq(Verto::DSL::BuiltInHooks::GitPullCurrentBranch)
               expect(Verto::DSL::BuiltInHooks::GitPullCurrentBranch).to have_received(:call)
+            end
+
+            it 'fetchs changes before creating a tag' do
+              up
+
+              expect(Verto.config.hooks.select { |h| h.moment == :before }.first)
+                .to eq(Verto::DSL::BuiltInHooks::GitFetch)
+              expect(Verto::DSL::BuiltInHooks::GitFetch).to have_received(:call)
             end
 
             it 'push changes after creating a tag' do

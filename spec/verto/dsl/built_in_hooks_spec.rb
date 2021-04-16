@@ -23,6 +23,18 @@ RSpec.describe Verto::DSL::BuiltInHooks do
     end
   end
 
+  describe described_class::GitFetch do
+    subject(:call) { described_class.call }
+
+    it 'pull current branch changes' do
+      allow(interpreter).to receive(:git!)
+
+      call
+
+      expect(interpreter).to have_received(:git!).with('fetch').once
+    end
+  end
+
   describe described_class::GitPushTags do
     subject(:call) { described_class.call }
 
