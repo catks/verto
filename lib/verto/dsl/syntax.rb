@@ -102,6 +102,16 @@ module Verto
         Verto.config.hooks << Hook.new(moment: 'before_tag_creation', &block)
       end
 
+      # Start the flow to Update the CHANGELOG file
+      # @param :with [Symbol] The strategy to search commit messages
+      #   Options include:
+      #   :merged_pull_requests_with_bracketed_labels -> Uses all PR merged commits after the last tag if they have the [***] pattern
+      #   :commits_with_bracketed_labels              -> Uses all commits after the last tag if they have the [***] pattern (Exclude merge commits)
+      #   :merged_pull_requests_messages              -> Uses all merged commit after the last tag
+      #   :commit_messages                            -> Uses all commits after the last tag (Exclude merge commits)
+      # @param :confirmation [Boolean] Adds a confirmation step before updating the CHANGELOG
+      # @param filename [String] The CHANGELOG filename
+      # @param message_pattern [Regexp] A regexp pattern to filter commit messages
       def update_changelog(with: :merged_pull_requests_with_bracketed_labels, confirmation: true, filename: 'CHANGELOG.md')
         permitted_moments = %w[before_tag_creation after_tag_up]
         unless permitted_moments.include? Verto.current_moment.to_s

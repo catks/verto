@@ -3,27 +3,27 @@
 module Verto
   module DSL
     class UpdateChangelog
-      include Verto.import[:cli_helpers, :stdout,
-                           executor: 'system_command_executor_without_output', changelog_format: 'changelog.format']
+      include Verto.import[:cli_helpers, :stdout, changelog_format: 'changelog.format']
 
       InvalidChangelogSource = Class.new(Verto::ExitError)
 
+      BRACKETED_LABELS_REGEXP = /^[[:space:]]*\[.*\]/.freeze
+
       SOURCES = StrictHash.new(
         {
-          merged_pull_requests_with_bracketed_labels: lambda do |executor|
-            executor.run(
-              %q(git log --oneline --decorate  | grep -B 100 -m 1 "tag:" | grep "pull request" | awk '{print $1}' | xargs git show --format='%b' | grep -v Approved | grep -v "^$" | grep -E "^[[:space:]]*\[.*\]")
-            ).output.split("\n").map(&:strip)
-          end
+          merged_pull_requests_with_bracketed_labels: WithMergedPullRequests.filtered_by(BRACKETED_LABELS_REGEXP),
+          commits_with_bracketed_labels: WithCommitMessages.filtered_by(BRACKETED_LABELS_REGEXP),
+          merged_pull_requests_messages: WithMergedPullRequests,
+          commit_messages: WithCommitMessages
         },
         default_proc: ->(hash, _) { raise InvalidChangelogSource, "Invalid CHANGELOG Source, avaliable options: '#{hash.keys.join(',')}'" }
       )
 
-      def call(new_version:, confirmation: true, filename: 'CHANGELOG.md', with: :merged_pull_requests_with_bracketed_labels)
+      def call(new_version:, confirmation: true, filename: 'CHANGELOG.md', with: :merged_pull_requests_with_bracketed_labels, message_pattern: nil)
         verify_file_presence!(filename)
 
         stdout.puts separator
-        changelog_changes = format_changes(new_version, version_changes(with))
+        changelog_changes = format_changes(new_version, version_changes(with, message_pattern))
 
         exit if confirmation && !cli_helpers.confirm("Create new Release?\n" \
                                                      "#{separator}\n" \
@@ -40,8 +40,8 @@ module Verto
         raise Verto::ExitError, "changelog file '#{filename}' doesnt exist"
       end
 
-      def version_changes(with)
-        SOURCES[with].call(executor)
+      def version_changes(with, message_pattern)
+        SOURCES[with.to_sym].new.call(*args_if_any(message_pattern))
       end
 
       def update_file(filename, changelog_changes)
@@ -54,6 +54,10 @@ module Verto
 
       def separator
         '---------------------------'
+      end
+
+      def args_if_any(arg)
+        [arg].compact
       end
     end
   end

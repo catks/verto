@@ -11,6 +11,7 @@ class TestRepo
   end
 
   def init!
+    clear!
     run 'git init'
     run 'touch test'
     run 'git add test'
@@ -26,12 +27,23 @@ class TestRepo
     init!
   end
 
-  def tag!(_version)
-    run 'git tag version'
+  def tag!(version)
+    run "git tag #{version}"
   end
 
   def commit!(message)
     run "git commit -m '#{message}' --allow-empty"
+  end
+
+  def merge_commit!(message)
+    run 'git checkout -b test_merge'
+    commit!('Test Commit')
+
+    run 'git checkout master'
+
+    run 'git merge --no-ff test_merge'
+    run "git commit --amend -m '#{message}'"
+    run 'git branch -D test_merge'
   end
 
   def checkout(branch)
