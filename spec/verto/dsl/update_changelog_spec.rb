@@ -47,6 +47,7 @@ RSpec.describe Verto::DSL::UpdateChangelog do
       end
     end
 
+    # TODO: Extract merged_pull_requests_with_bracketed_labels tests
     context 'with merged pull requests from bitbucket after last tag' do
       before do
         repo.tag!('1.1.0')
