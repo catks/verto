@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     strategy:
       matrix:
         ruby: ['2.5', '2.6', '2.7', '3.0']
@@ -38,7 +38,7 @@ jobs:
           ./cc-test-reporter after-build -r ${{secrets.CC_TEST_REPORTER_ID}}
 
   lint:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     name: Lint
     steps:
       - uses: actions/checkout@v2
