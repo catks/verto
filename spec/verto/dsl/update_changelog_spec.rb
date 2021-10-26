@@ -19,7 +19,8 @@ RSpec.describe Verto::DSL::UpdateChangelog do
 
     before do
       repo.init!
-      allow(CliHelpers).to receive(:confirm).and_return(user_confirm)
+      allow(Verto::CliHelpers).to receive(:select_options).and_return(user_confirm)
+      allow(Verto::CliHelpers).to receive(:edit_text) { |text| text }
       allow(instance).to receive(:new_version).and_return(new_version)
     end
 
@@ -29,7 +30,7 @@ RSpec.describe Verto::DSL::UpdateChangelog do
 
     let(:source_option) { :merged_pull_requests_with_bracketed_labels }
     let(:changelog_file) { 'CHANGELOG.md' }
-    let(:user_confirm) { true }
+    let(:user_confirm) { :yes }
     let(:new_version) { '1.1.1' }
     let(:current_time) { Time.now.strftime('%d/%m/%Y') }
 
@@ -37,7 +38,41 @@ RSpec.describe Verto::DSL::UpdateChangelog do
       it 'asks for confirmation' do
         update_changelog
 
-        expect(CliHelpers).to have_received(:confirm).once
+        expect(Verto::CliHelpers)
+          .to have_received(:select_options)
+          .with(
+            'Create new Release?',
+            [
+              { key: 'y', name: 'Create a new Release CHANGELOG', value: :yes },
+              { key: 'n', name: 'Cancel the Release CHANGELOG', value: :no },
+              { key: 'e', name: 'Edit the Release CHANGELOG before continuing', value: :edit }
+            ]
+          ).once
+      end
+
+      context 'when editing the changelog' do
+        let(:user_confirm) { :edit }
+
+        it 'edit the changelog' do
+          update_changelog
+
+          expect(Verto::CliHelpers)
+            .to have_received(:select_options)
+            .with(
+              'Create new Release?',
+              [
+                { key: 'y', name: 'Create a new Release CHANGELOG', value: :yes },
+                { key: 'n', name: 'Cancel the Release CHANGELOG', value: :no },
+                { key: 'e', name: 'Edit the Release CHANGELOG before continuing', value: :edit }
+              ]
+            ).once
+
+          expect(Verto::CliHelpers)
+            .to have_received(:edit_text)
+            .with(
+              a_kind_of(String)
+            ).once
+        end
       end
 
       it 'updates CHANGELOG.md' do

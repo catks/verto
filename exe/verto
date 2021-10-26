@@ -11,6 +11,8 @@ begin
 
   Verto::MainCommand.start(ARGV)
 
+# TODO: Check why we can't handle this error on CliHelpers
+rescue TTY::Reader::InputInterrupt
 # TODO: Improve error Message Handling
 rescue Verto::ExitError => e
   Verto.stderr.puts e.message

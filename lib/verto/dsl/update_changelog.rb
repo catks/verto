@@ -22,17 +22,36 @@ module Verto
       def call(new_version:, confirmation: true, filename: 'CHANGELOG.md', with: :merged_pull_requests_with_bracketed_labels, message_pattern: nil)
         verify_file_presence!(filename)
 
-        stdout.puts separator
         changelog_changes = format_changes(new_version, version_changes(with, message_pattern))
 
-        exit if confirmation && !cli_helpers.confirm("Create new Release?\n" \
-                                                     "#{separator}\n" \
-                                                     "#{changelog_changes}" \
-                                                     "#{separator}\n")
+        if confirmation
+          stdout.puts separator
+          stdout.puts changelog_changes
+          stdout.puts separator
+          changelog_changes = select_changelog_text(changelog_changes)
+        end
+
         update_file(filename, changelog_changes)
       end
 
       private
+
+      # TODO: Refactor
+      def select_changelog_text(changelog_changes) # rubocop:disable Metrics/MethodLength
+        choices = [
+          { key: 'y', name: 'Create a new Release CHANGELOG', value: :yes },
+          { key: 'n', name: 'Cancel the Release CHANGELOG', value: :no },
+          { key: 'e', name: 'Edit the Release CHANGELOG before continuing', value: :edit }
+        ]
+        case cli_helpers.select_options('Create new Release?', choices)
+        when :no
+          exit
+        when :edit
+          cli_helpers.edit_text(changelog_changes)
+        else
+          changelog_changes
+        end
+      end
 
       def verify_file_presence!(filename)
         return if Verto.project_path.join(filename).exist?
@@ -49,7 +68,9 @@ module Verto
       end
 
       def format_changes(new_version, version_changes)
-        Mustache.render(changelog_format, { new_version: new_version, version_changes: version_changes }) + "\n"
+        changes = Mustache.render(changelog_format,
+                                  { new_version: new_version, version_changes: version_changes })
+        "#{changes}\n"
       end
 
       def separator

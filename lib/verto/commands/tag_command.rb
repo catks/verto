@@ -134,8 +134,8 @@ module Verto
     def load_config_hooks!
       enabled_hooks = ->(_, v) { v }
 
-      config_hooks[:before].select(&enabled_hooks).keys.each { |hook| Verto.config.hooks.prepend(hook) }
-      config_hooks[:after].select(&enabled_hooks).keys.each { |hook| Verto.config.hooks << hook }
+      config_hooks[:before].select(&enabled_hooks).each_key { |hook| Verto.config.hooks.prepend(hook) }
+      config_hooks[:after].select(&enabled_hooks).each_key { |hook| Verto.config.hooks << hook }
     end
 
     def config_hooks

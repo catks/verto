@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Verto::DSL::Syntax do
-  let(:class_with_syntax) { Class.new { include Verto::DSL:: Syntax } }
+  let(:class_with_syntax) { Class.new { include Verto::DSL::Syntax } }
   let(:instance) { class_with_syntax.new }
 
   describe '#update_changelog' do
@@ -10,12 +10,12 @@ RSpec.describe Verto::DSL::Syntax do
     let(:update_changelog_instance) { Verto::DSL::UpdateChangelog.new }
     let(:source_option) { :merged_pull_requests_with_bracketed_labels }
     let(:changelog_file) { 'CHANGELOG.md' }
-    let(:user_confirm) { true }
+    let(:user_confirm) { :yes }
     let(:new_version) { '1.1.1' }
 
     before do
       allow(instance).to receive(:new_version).and_return(new_version)
-      allow(CliHelpers).to receive(:confirm).and_return(user_confirm)
+      allow(Verto::CliHelpers).to receive(:select_options).and_return(user_confirm)
       allow(Verto::DSL::UpdateChangelog).to receive(:new).and_return(update_changelog_instance)
       Verto.current_moment = :before_tag_creation
     end
