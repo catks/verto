@@ -4,52 +4,6 @@
 [![Test Coverage](https://api.codeclimate.com/v1/badges/39e7c6f1f5f57b8555ed/test_coverage)](https://codeclimate.com/github/catks/verto/test_coverage)\
 Verto is a CLI to generate git tags (following the [Semantic Versioning](https://semver.org/) system)
 
-## Installation
-
-
-### Ruby Gem
-Verto is distributed as a ruby gem, to install run:
-
-```shell
-$ gem install verto
-```
-
-### With Rbenv
-
-If you use Rbenv you can install verto only once and create a alias in your .basrc, .zshrc, etc:
-
-#### ZSH
-    $ RBENV_VERSION=$(rbenv global) gem install verto && echo "alias verto='RBENV_VERSION=$(rbenv global) verto'" >> ~/.zshrc
-
-#### Bash
-    $ RBENV_VERSION=$(rbenv global) gem install verto && echo "alias verto='RBENV_VERSION=$(rbenv global) verto'" >> ~/.bashrc
-
-
-### Docker Image
-
-You don't need to install verto in your machine, you can run verto via the docker image
-
-To use verto in the same way that you use any other cli, you can set an alias in your `.bashrc`, `.zshrc`, etc:
-
-```shell
-alias verto='docker run --rm -v $(pwd):/usr/src/project -it catks/verto:0.11.0'
-```
-
-If you want you can share your git configuration and known_hosts with:
-
-```shell
-alias verto='docker run --rm -v ~/.gitconfig:/etc/gitconfig -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -it catks/verto:0.11.0'
-
-```
-
-You can also use your ssh keys, know_hosts and git config with verto container (for git push):
-
-```shell
-alias verto='docker run --rm -v ~/.gitconfig:/etc/gitconfig -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -v $HOME/.ssh/id_rsa:/root/.ssh/id_rsa -e SSH_PRIVATE_KEY=/root/.ssh/id_rsa -it catks/verto:0.11.0'
-
-```
-
-Now you can run any verto command! :)
 
 ## Usage
 
@@ -164,6 +118,51 @@ context(!branch('master', 'staging')) {
 #### Verto Syntax
 
 ...TODO...
+## Installation
+
+### Ruby Gem
+Verto is distributed as a ruby gem, to install run:
+
+```shell
+$ gem install verto
+```
+
+### With Rbenv
+
+If you use Rbenv you can install verto only once and create a alias in your .basrc, .zshrc, etc:
+
+#### ZSH
+    $ RBENV_VERSION=$(rbenv global) gem install verto && echo "alias verto='RBENV_VERSION=$(rbenv global) verto'" >> ~/.zshrc
+
+#### Bash
+    $ RBENV_VERSION=$(rbenv global) gem install verto && echo "alias verto='RBENV_VERSION=$(rbenv global) verto'" >> ~/.bashrc
+
+
+### Docker Image
+
+You don't need to install verto in your machine, you can run verto via the docker image
+
+To use verto in the same way that you use any other cli, you can set an alias in your `.bashrc`, `.zshrc`, etc:
+
+```shell
+alias verto='docker run --rm -v $(pwd):/usr/src/project -it catks/verto:0.11.0'
+```
+
+If you want you can share your git configuration and known_hosts with:
+
+```shell
+alias verto='docker run --rm -v ~/.gitconfig:/etc/gitconfig -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -it catks/verto:0.11.0'
+
+```
+
+You can also use your ssh keys, know_hosts and git config with verto container (for git push):
+
+```shell
+alias verto='docker run --rm -v ~/.gitconfig:/etc/gitconfig -v $(pwd):/usr/src/project -v $HOME/.ssh/known_hosts:/root/.ssh/known_hosts -v $HOME/.ssh/id_rsa:/root/.ssh/id_rsa -e SSH_PRIVATE_KEY=/root/.ssh/id_rsa -it catks/verto:0.11.0'
+
+```
+
+Now you can run any verto command! :)
 
 ## TODO
 

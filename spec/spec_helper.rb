@@ -2,6 +2,7 @@
 
 require 'bundler/setup'
 require 'byebug'
+require 'pry-byebug'
 
 require_relative 'helpers/test_repo'
 require_relative 'helpers/test_command'
