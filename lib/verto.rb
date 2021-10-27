@@ -6,7 +6,10 @@ require 'dry-configurable'
 require 'dry-auto_inject'
 require 'vseries'
 require 'mustache'
+require 'tty-prompt'
+require 'tty-editor'
 require 'pathname'
+require 'securerandom'
 
 require 'verto/version'
 require 'verto/utils/command_options'
@@ -42,13 +45,12 @@ module Verto
   end
 
   setting :changelog do
-    setting :format,
-            <<~CHANGELOG
-              ## {{new_version}} - #{Time.now.strftime('%d/%m/%Y')}
-              {{#version_changes}}
-               * {{.}}
-              {{/version_changes}}
-            CHANGELOG
+    setting :format, <<~CHANGELOG
+      ## {{new_version}} - #{Time.now.strftime('%d/%m/%Y')}
+      {{#version_changes}}
+       * {{.}}
+      {{/version_changes}}
+    CHANGELOG
   end
 
   setting :hooks, []
@@ -58,7 +60,7 @@ module Verto
   CommandError = Class.new(ExitError)
 
   def self.root_path
-    Pathname.new File.expand_path(File.dirname(__FILE__) + '/..')
+    Pathname.new File.expand_path("#{File.dirname(__FILE__)}/..")
   end
 
   def self.project_path
@@ -117,7 +119,7 @@ module Verto
   end
 end
 
-require 'verto/utils/semantic_version.rb'
+require 'verto/utils/semantic_version'
 require 'verto/utils/system_command_executor'
 require 'verto/utils/tag_filter'
 require 'verto/utils/template'

@@ -3,7 +3,7 @@
 require 'bundler/gem_tasks'
 require 'rspec/core/rake_task'
 require_relative 'lib/verto'
-require_relative 'spec/helpers/test_repo.rb'
+require_relative 'spec/helpers/test_repo'
 
 RSpec::Core::RakeTask.new(:spec)
 

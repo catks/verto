@@ -115,7 +115,7 @@ RSpec.describe Verto::DSL do
       IO.write(package_json_path, '{ "version": "0.0.0" }')
       Verto.config.hooks = [] # Reset Hooks
       command_executor.run('touch CHANGELOG.md')
-      allow(CliHelpers).to receive(:confirm).and_return(true)
+      allow(Verto::CliHelpers).to receive(:select_options).and_return(:yes)
       described_class.reset_interpreter!
     end
 
