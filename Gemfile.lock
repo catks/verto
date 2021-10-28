@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    verto (0.11.0)
+    verto (0.12.0)
       dry-auto_inject (~> 0.7.0)
       dry-configurable (~> 0.9.0)
       dry-container (~> 0.7.0)

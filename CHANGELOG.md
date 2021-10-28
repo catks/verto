@@ -1,3 +1,9 @@
+## 0.12.0 - 28/10/2021
+ * [DOC] Add Verto Syntax Documentation
+ * [FEATURE] Add option to edit the CHANGELOG
+ * [FEATURE] Add update_changelog strategies
+ * [TECH] Configure pry and pry-byebug
+
 ## 0.11.0 - 16/04/2021
  * [FEATURE] Adds fetch_before_tag_creation built-in hook
  * [FEATURE] Verto Tag Init Command

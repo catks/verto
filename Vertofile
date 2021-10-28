@@ -1,4 +1,4 @@
-verto_version '0.11.0'
+verto_version '0.12.0'
 
 config {
   version.prefix = 'v' # Adds a version_prefix
