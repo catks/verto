@@ -45,7 +45,7 @@ verto_version '0.11.0'
 
 config {
  # version.prefix = 'v' # Adds a version_prefix
- # pre_release.default_identifier = 'alpha' } # Defaults to 'rc'
+ # pre_release.default_identifier = 'alpha' # Defaults to 'rc'
  git.pull_before_tag_creation = true # Pull Changes before tag creation
  git.fetch_before_tag_creation = true # Fetch Branches and Tags before tag creation
  git.push_after_tag_creation = true # Push changes after tag creation
@@ -117,7 +117,8 @@ context(!branch('master', 'staging')) {
 
 #### Verto Syntax
 
-...TODO...
+[See more details here](VERTO_SYNTAX.md)
+
 ## Installation
 
 ### Ruby Gem
